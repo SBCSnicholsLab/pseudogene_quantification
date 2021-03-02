@@ -1,13 +1,22 @@
-# ExoEst - Quantifying nuclear pseudogenes of non-nuclear origin from population-level data
+# ExtraIns - Quantifying nuclear inserts of etxra-nuclear origin from population-level data
 
-Many eucaryotic genomes have numerous insertions of exogenous DNA (such as numts, numpts, and insertions of *Wolbachia* DNA). The quantification of these inserts can be challenging in absence of a high-quality genome assembly. ExoEst bypasses the need for such an assembly. Using population-level low-pass (genome skimming) data, it is possible to statisstically estimate the nuclear abundance of exogenous insertions. 
+Many eucaryotic genomes contain numerous inserts of extra nucler DNA (such as numts, numpts, and insertions of *Wolbachia* DNA). The quantification of these inserts can be challenging in absence of a high-quality genome assembly. ExtraIns bypasses the need for assemblie. Using population-level low-pass (genome skimming) data, it is possible to statistically estimate the nuclear abundance of such inserts. 
+
+## How it works
+
+* allele count data
+* relationship between rare-allele frequency and mapping depth
+* transformation
+* model fitting
+
+Rainbow plot.
 
 
 ## Software requirements
 
 Once the data is in the correct format, you need:
 * `R` (we used version 3.6.1 (2019-07-05) -- "Action of the Toes")
-* the R package `lme4` in order to construct mixed-effect models (we used version 1.1-26)
+* the R package `lme4` to construct mixed-effect models (we used version 1.1-26)
 
 This repository includes the data sets we anaysed in the format you'll require for analysis.
 
