@@ -1,6 +1,6 @@
 # ExtraIns - Quantifying nuclear inserts of etxra-nuclear origin from population-level data
 
-Many eucaryotic genomes contain numerous inserts of extra nucler DNA (such as numts, numpts, and insertions of *Wolbachia* DNA). The quantification of these inserts can be challenging in absence of a high-quality genome assembly. ExtraIns bypasses the need for assemblie. Using population-level low-pass (genome skimming) data, it is possible to statistically estimate the nuclear abundance of such inserts. 
+Many eukaryotic genomes contain numerous inserts of extra nucler DNA (such as numts, numpts, and insertions of *Wolbachia* DNA). The quantification of these inserts can be challenging in absence of a high-quality genome assembly. ExtraIns bypasses the need for an assembly. Using population-level low-pass (genome skimming) data, it is possible to statistically estimate the nuclear abundance of such inserts. 
 
 ## How it works
 
