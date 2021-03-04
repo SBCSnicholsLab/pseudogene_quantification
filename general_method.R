@@ -5,135 +5,132 @@
 
 library(lme4) 
 
+
+# The analysis function
+extrasIns <- function(x, seed, main=""){
+  # The SNPs will have to be sub-sampled for analysis. Generate weights,
+  #  biasing towards high freq and discrading very low-freq SNPs.
+  wweights <- tapply(x$AltProp, x$Position, mean)
+  # hist(wweights, breaks=300, xlim=c(0,0.1))
+  # abline(v=0.01)
+  wweights[wweights < 0.01] <- 0
+  
+  # Weights
+  if(hasArg(seed)) set.seed(seed)
+  nloci = 200
+  loci <- sample(names(wweights), nloci, prob = wweights)
+  
+  subDF <- x[x$Position %in% loci, ]
+  
+  
+  # pre-analysis to detect aberrant SNPs
+  # mod4 <- lmer(ylog ~ Position + xnqlogis + xnqlogis:Position + (1 | Sample) ,
+  #              offset = xnqlogis,
+  #              data = subDF)
+  
+  # Try linear model if model matrix is rank deficient
+  mod4lm <- lm(ylog ~ Position + xnqlogis + xnqlogis:Position ,
+               offset = xnqlogis,
+               data = subDF)
+  
+  #plot(mod4)
+  # longSummary <- summary(mod4)
+  longSummary <- summary(mod4lm)
+  interactionTerms <- grep(":xnqlogis", rownames(longSummary$coefficients))
+  slopeFitted <- longSummary$coefficients[which("xnqlogis" == rownames(longSummary$coefficients)), 1]
+  slopes <- longSummary$coefficients[interactionTerms, 1] + slopeFitted
+  
+  # rogues #####
+  
+  # hist(slopes, breaks = 100)
+  # hist(slopes, breaks = 1000, xlim=c(-10,10))
+  bpsSlopes <- boxplot.stats(slopes)$stats
+  #abline(v=bpsSlopes)
+  rogueSNPs <- which(slopes > bpsSlopes[5] | slopes < bpsSlopes[1])
+  rogueSNPs <- as.character(subDF$Position)[rogueSNPs]
+  goodDat <- subDF[!(subDF$Position %in% rogueSNPs),]
+  goodDat$Position <- as.character(goodDat$Position)
+  
+  goodDat <- goodDat[!(is.na(goodDat$ylog) | is.na(goodDat$xnqlogis)), ]
+  goodDat <- goodDat[!goodDat$AltProp > 0.5, ]
+  
+  goodDatTable <- table(goodDat$Position)
+  # hist(goodDatTable)
+  
+  ltt <- names(goodDatTable[goodDatTable < 5])
+  goodDat <- goodDat[!goodDat$Position %in% ltt, ]
+  
+  # goodDat <- subDF
+  
+  
+  lmod5 <- lmer(ylog ~ 0 + Position + (1 | Sample),
+                offset = xnqlogis,
+                data = goodDat)
+  
+  
+  intercepts5 <- summary(lmod5)$coefficients[,1]
+  summary(intercepts5)
+  #hist(intercepts5)
+  
+  
+  # rank intercepts, so allele freqs and slopes can be coloured in
+  iranks <- rank(intercepts5, ties.method = "random")
+  rankDF <- data.frame(Position=substr(names(iranks), 9, 20), rank=iranks)
+  goodDat <- merge(goodDat, rankDF, by="Position")
+  
+  
+  
+  with(goodDat,{
+    nSamp = length(unique(goodDat$Sample))
+    remainingLoci = length(unique(goodDat$Position))
+    plot(ylog~xnqlogis, col=rainbow(remainingLoci)[rank], pch=1, xlim=c(0,10), ylim=c(-10,0),
+         xlab="(Un-mapped data / mapped)",
+         ylab="Allele frequency",
+         main=main,
+         xaxt = 'n',
+         yaxt = 'n'
+    )
+
+    axis(1, at = log(2^(0:7*2)), labels = 2^(0:7*2))
+    abline(v = log(2^(0:7*2)), col = "grey", lty=3)
+    ll <- expression("0", "10"^-1, "10"^-2, "10"^-3, "10"^-4, "10"^-5, "10"^-6)
+    axis(2, at = log(10^(0:-6)), labels = ll)
+    abline(h = log(10^(0:-6)), col = "grey", lty=3)
+    abline(h=max(intercepts5))
+    abline(v=max(xnqlogis))
+    abline(max(intercepts5), 1,  lty=2)
+    estLB <<- exp(max(intercepts5))/ (1+exp(max(intercepts5)))
+    estUB <<- plogis(-max(goodDat$xnqlogis))
+    text(c(2, 7), c(0,0), c(
+      paste0("Lower-bound: ", round(estLB*100, digits = 3), "%"),
+      paste0("Upper-bound: ", round(estUB*100, digits = 3), "%")
+    )
+
+    )
+
+    sapply(1:length(intercepts5), function(x){
+      abline(intercepts5[x], 1, col = rainbow(remainingLoci, alpha = 0.2)[iranks][x])
+    })
+    print(paste0("Estimate based on ", length(intercepts5), " loci after filtering."))
+    #print(paste0("Lower-bound: ", estLB))
+    #print(paste0("Upper-bound: ", estUB))
+  })
+  return(c(lower=estLB, upper=estUB))
+}
+
+
 # Read in data ####
-mainDF <- read.table("transformedData.csv")
-head(mainDF)
+setwd("~/git_repos/pseudogene_quantification/")
+# human data set
+humanDF <- read.table("data/human/transformedData.csv", stringsAsFactors = F)
+# parrot data set
+parrotDF <- read.table("data/parrot/transformedData.csv", stringsAsFactors = F)
+# grasshopper data set
+hopperDF <- read.table("data/grasshopper/transformedData.csv", stringsAsFactors = F)
 
 
-# The SNPs will have to be sub-sampled for analysis. Generate weights,
-#  biasing towards high freq and discrading very low-freq ones.
+extrasIns(humanDF, seed = 12345, main="Human")
 
-wweights <- tapply(mainDF$AltProp, mainDF$Position, mean)
-hist(wweights, breaks=300)
-abline(v=0.01)
-wweights[wweights < 0.01] <- 0
+extrasIns(hopperDF, seed = 12345, main="Grasshopper")
 
-# Weights and 
-
-set.seed(12345)
-nloci = 200
-loci <- sample(names(wweights), nloci, prob = wweights)
-
-subDF <- mainDF[mainDF$Position %in% loci, ]
-head(subDF)
-
-# pre-analysis to detect aberrant SNPs
-mod4 <- lmer(ylog ~ Position + xnqlogis + xnqlogis:Position + (1 | Sample) ,
-             offset = xnqlogis,
-             data = subDF)
-
-# Try linear model if model matrix is rank deficient
-mod4lm <- lm(ylog ~ Position + xnqlogis + xnqlogis:Position ,
-             offset = xnqlogis,
-             data = subDF)
-
-#plot(mod4)
-longSummary <- summary(mod4)
-longSummary <- summary(mod4lm)
-interactionTerms <- grep(":xnqlogis", rownames(longSummary$coefficients))
-slopeFitted <- longSummary$coefficients[which("xnqlogis" == rownames(longSummary$coefficients)), 1]
-hist(longSummary$coefficients[interactionTerms, 1] + slopeFitted, breaks = 25)
-slopes <- longSummary$coefficients[interactionTerms, 1] + slopeFitted
-
-# rogues #####
-
-rogueColours <- rep("#00000000", nloci)
-rogueColours[which(slopes > 2)] <- 2
-rogueColours[which(slopes < 2)] <- 1
-#rogueSNPs <- which(abs(slopes) > 0.5)
-rogueSNPs <- which(abs(slopes) > 1.5)
-rogueSNPs <- as.character(subDF$Position)[rogueSNPs]
-goodDat <- subDF[!(subDF$Position %in% rogueSNPs),]
-goodDat$Position <- as.character(goodDat$Position)
-unique(goodDat$Sample)
-goodDat <- goodDat[!(is.na(goodDat$ylog) | is.na(goodDat$xnqlogis)), ]
-goodDatTable <- table(goodDat$Position)
-
-hist(goodDatTable)
-ltt <- names(goodDatTable[goodDatTable < 2])
-goodDat <- goodDat[!goodDat$Position %in% ltt, ]
-# goodDat <- subDF
-
-
-lmod5 <- lmer(ylog ~ 0 + Position + (1 | Sample),
-              offset = xnqlogis,
-              data = goodDat)
-
-
-intercepts5 <- summary(lmod5)$coefficients[,1]
-summary(intercepts5)
-#hist(intercepts5)
-iranks <- rank(intercepts5, ties.method = "random")
-dim(goodDat)
-
-
-with(goodDat,{
-  plot(ylog~xnqlogis, col=rep(topo.colors(nloci)[iranks], nSamp), pch=1, xlim=c(0,10), ylim=c(-10,0),
-       xlab="Odds ratio of data mapped",
-       ylab="Allele frequency",
-       main="",
-       xaxt = 'n',
-       yaxt = 'n'
-  )
-  
-  axis(1, at = log(2^(0:7*2)), labels = 2^(0:7*2)) 
-  abline(v = log(2^(0:7*2)), col = "grey", lty=3)
-  ll <- expression("0", "10"^-1, "10"^-3,"10"^-3,"10"^-4,"10"^-5,"10"^-6)
-  axis(2, at = log(10^(0:-6)), labels = ll)
-  abline(h = log(10^(0:-6)), col = "grey", lty=3)
-  abline(h=max(intercepts5))
-  abline(v=max(xnqlogis))
-  abline(max(intercepts5), 1,  lty=2)
-  text(c(2, 7), c(0,0), c(
-       paste0("Lower-bound: ", round(exp(max(intercepts5)), digits = 6)),
-       paste0("Upper-bound: ", round(plogis(-max(goodDat$xnqlogis)), digits = 6))
-       )
-       
-  )
-  
-  sapply(1:length(intercepts5), function(x){
-    abline(intercepts5[x], 1, col = topo.colors(nloci, alpha = 0.2)[iranks][x])
-  })
-})
-
-
-
-
-# Richard's suggestion
-with(goodNewDat,{
-  plot(ylog~xnqlogis, col=rep(topo.colors(nloci)[iranks], 46), pch=1,
-       #xlim=c(0,8), ylim=c(-8,0),
-       xlab="(Unmapped reads / Mapped)",
-       ylab="Allele Frequency (log scale)",
-       main="Estimating nuMt Proportions",
-       cex = 0.2,
-       xlim = c(0, max(xnqlogis) * 1.01),
-       ylim = c(min(intercepts5), max(ylog, na.rm = T) * 1.1),
-       xaxt = 'n',
-       yaxt = 'n'
-  )
-  axis(1, at = log(2^(0:3*3)), labels = 2^(0:3*3)) 
-  
-  ll <- expression("0", "10"^-1, "10"^-3,"10"^-3,"10"^-4,"10"^-5,"10"^-6)
-  axis(2, at = log(10^(0:-6)), labels = ll)
-  
-  sapply(1:length(intercepts5), function(x){
-    abline(intercepts5[x], 1, col = topo.colors(nloci, alpha = 0.2)[iranks][x])
-  })
-  abline(v = 0, lty = 3)
-  #plot(ylog~xlog, col=rep(topo.colors(nloci)[iranks], 46), pch=1)
-})
-
-
-
-
+extrasIns(parrotDF, seed = 12345, main="Parrot")

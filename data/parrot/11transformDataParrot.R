@@ -1,6 +1,3 @@
-
-
-
 ######################################
 # Prepare data for general method ####
 ######################################
@@ -60,7 +57,7 @@ allCountsHC <- allCounts # opportunity to remove individuals if desired
 # remove sites with missing alleles identified above
 allCountsHC <- allCountsHC[!allCountsHC$position %in% posMissing,]
 
-# plit allele counts into separate DFs, one per allele
+# split allele counts into separate DFs, one per allele
 gtList <- lapply(1:4, function(x) {
   allCountsHC[allCountsHC$allele==x,]
 })
@@ -79,8 +76,7 @@ str(gtVectors)
 
 # long(er) data frame for allele counts with sample index
 allDF <- data.frame(sample=sampleIndex, pos = paste0("S",rep(sprintf("%05d",gtsHC$POS), nSamp)), 
-                    A1=gtVectors[[1]], A2=gtVectors[[2]], A3=gtVectors[[3]],
-                    A4=gtVectors[[4]])
+                    ref=gtVectors[[1]], alt=gtVectors[[2]] + gtVectors[[3]] + gtVectors[[4]])
 head(allDF)
 str(allDF)
 # long(er) DF with GT calls
@@ -89,29 +85,10 @@ gtDF <- data.frame(sample = sampleIndex, pos = rep(gtsHC$POS, nSamp),
 head(gtDF)
 str(gtDF)
 
-
-# depth of the called allele. This does a lot of indexing,
-#  picking the counts of the allele that was called.
-callDeps <- sapply(1:nrow(gtDF), function(x) {
-  allDF[x, gtDF[x, 3]]
-})
-
-
 # Depth of the alt allels (summed)
-siteDeps <- rowSums(allDF[,3:6])
-altDeps <- siteDeps - callDeps
-altRatio <- altDeps / siteDeps
+siteDeps <- rowSums(allDF[,3:4])
+altRatio <- allDF$alt / siteDeps
 
-siteSums <- tapply(siteDeps, allDF$pos, sum)
-altSums <- tapply(altDeps, allDF$pos, sum)
-
-# Allele frequency spectrum
-sumRatios <- as.vector(altSums/siteSums)
-hist(sumRatios, breaks=200)
-abline(v=0.01)
-
-rareVariants <- names(sumRatios[sumRatios < 0.01])
-nrow(gtsHC)
 
 
 # DF that wih all releavant data for the anaysis:
@@ -143,128 +120,126 @@ head(mainDF)
 # Write out data
 #write.table(mainDF, "transformedData.csv")
 
+
+
 #################################################
 # Diverged populations and fixed differences ####
 #################################################
-
-
-
-
-
-
-
-
-
-
-
-# selection of loci ####
-
-# overall mapping depths ####
-# numt alleles are low, what are the overall mapping depths?
-head(allCountsHC)
-siteSUMS <- tapply(1:nrow(allCountsHC), allCountsHC$position, function(x){
-  colSums(allCountsHC[x, 1:nSamp])
-})
-siteSUMS <- as.matrix(do.call(rbind, siteSUMS))
-dim(siteSUMS)
-head(siteSUMS)
-barplot(colMeans(siteSUMS), las=3, log="y")
-abline(h=c(10, 50, 100, 200, 500))
-
-# population divergence ####
-
-
-dim(gtsHC)
-head(gtsHC)
-pc01 <- prcomp(t(gtsHC[,1:nSamp]))
-summary(pc01)
-str(pc01)
-pc01$x[,1:2]
-plot(pc01$x[,1:2], asp = 2/90)
-plot(pc01$x[,1:2])
-abline(h=c(0.5, -1))
-which(pc01$x[,2] < -1)
-which(pc01$x[,2] > 0.5)
-which(pc01$x[,1] > 0)
-
-plot(pc01$rotation[,1])
-which(pc01$rotation[,1] > 0.15)
-hist(mappingProp, breaks=20)
-pop0 <- rownames(pc01$x)[pc01$x[,1]>0]
-pop1 <- rownames(pc01$x)[pc01$x[,1]<0]
-
-pop0ind <- which(names(gtsHC) %in% pop0)
-pop1ind <- which(names(gtsHC) %in% pop1)
-
-is.fixed.diff <- function(x, ind0, ind1){
-  !any(x[ind0] %in% x[ind1])
-}
-is.fixed.diff(gtsHC[1,], pop1ind, pop0ind)
-
-fixedInd <- apply(gtsHC, 1, function(x) is.fixed.diff(x, pop0ind, pop1ind))
-sum(fixedInd)
-
-fixedPos <- paste0("S", sprintf("%05d", gtsHC$POS[fixedInd]))
-
-
-mainDFfixed <- mainDF[mainDF$Position %in% fixedPos,]
-mainDFfixed$parrotpop <- mainDFfixed$Sample %in% pop0
-
-a <- numeric(0)
-for( j in 1:length(fixedPos)) {
-  i <- fixedPos[j]
-  if(i %in% mainDFfixed$Position){
-    with(mainDFfixed[mainDFfixed$Position==i,],
-         plot(ylog~xnqlogis,
-              xlim=c(0, 7.5),
-              ylim=c(-8,0),
-              main = i,
-              col = (parrotpop==T)+1,
-              pch = 19))
-    mod00 <- lm(ylog~0+parrotpop, data = mainDFfixed[mainDFfixed$Position==i,], offset=xnqlogis)
-    #print(summary(mod00))
-    abline(coef(mod00)[1], 1)
-    abline(coef(mod00)[2], 1)
-    phat <- plogis(diff(coef(mod00)))
-    logc <- mean(coefficients(mod00)-c(log(1-phat),log(phat)))
-    a[j] <- (exp(logc))
-  }
-  else
-    print(i, " is missing")
-}
-
-
-plotParrotFixed <- function(x){
-  i <- fixedPos[x]
-  print(x)
-  datInt <- mainDFfixed[mainDFfixed$Position==i,]
-  datInt <- datInt[!is.na(datInt$ylog),]
-  datInt <- datInt[!is.na(datInt$xnqlogis),]
-       plot(ylog~xnqlogis,
-            xlim=c(0, 9.5),
-            ylim=c(-8,0),
-            main = i,
-            col = (datInt$parrotpop==T)+1,
-            pch = 19,
-            data=datInt)
-  #print(datInt)
-  if( nrow(datInt) > 0){
-    mod00 <- lm(ylog~0+parrotpop, data = datInt, offset=xnqlogis)
-    #print(summary(mod00))
-    if(all(is.finite(coef(mod00)))){
-      abline(coef(mod00)[1], 1)
-      abline(coef(mod00)[2], 1)
-      phat <- plogis(diff(coef(mod00)))
-      logc <- mean(coefficients(mod00)-c(log(1-phat),log(phat)))
-      return(exp(logc)*100)
-    } else {
-      return(NA)
-    }
-  } else return(NA)
-  
-}
-plotParrotFixed(1)
-plotParrotFixed(2)
-a <- sapply(1:179, plotParrotFixed)
-sum(is.na(a))
-hist(a, breaks = 50)
+# 
+# 
+# # population divergence ####
+# 
+# 
+# dim(gtsHC)
+# head(gtsHC)
+# pc01 <- prcomp(t(gtsHC[,1:nSamp]))
+# 
+# # PC1 accounts for >89% of the variance, PC2 for <3%
+# summary(pc01)
+# str(pc01)
+# pc01$x[,1:2]
+# 
+# # PCA separates two clusters of individuals
+# plot(pc01$x[,1:2], asp = 3/90, main="PCA mitotypes")
+# 
+# # Which sites have fixed differences between the groups? ####
+# 
+# # Get sample names of PCA rgoups
+# pop0 <- rownames(pc01$x)[pc01$x[,1]>0]
+# pop1 <- rownames(pc01$x)[pc01$x[,1]<0]
+# 
+# # Get indices
+# pop0ind <- which(names(gtsHC) %in% pop0)
+# pop1ind <- which(names(gtsHC) %in% pop1)
+# 
+# # A function to check whether there is sharing of alleles
+# #  (for an individual locus)
+# is.fixed.diff <- function(x, ind0, ind1){
+#   !any(x[ind0] %in% x[ind1])
+# }
+# 
+# # The first locus in gtsHC is not fixed:
+# is.fixed.diff(gtsHC[1,], pop1ind, pop0ind)
+# 
+# fixedIndAnyCov <- apply(gtsHC, 1, function(x) is.fixed.diff(x, pop0ind, pop1ind))
+# sum(fixedIndAnyCov)
+# 
+# fixedPos <- paste0("S", sprintf("%05d", gtsHC$POS[fixedIndAnyCov]))
+# 
+# 
+# mainDFfixed <- mainDF[mainDF$Position %in% fixedPos,]
+# mainDFfixed$pop <- ifelse(mainDFfixed$Sample %in% pop0, "1", "2")
+# head(mainDFfixed)
+# 
+# 
+# plotFixed <- function(x){
+#   i <- fixedPos[x]
+#   print(x)
+#   datInt <- mainDFfixed[mainDFfixed$Position==i,]
+#   datInt <- datInt[!is.na(datInt$ylog),]
+#   datInt <- datInt[!is.na(datInt$xnqlogis),]
+#   plot(ylog~xnqlogis,
+#        xlim=c(0, 9.5),
+#        ylim=c(-8,0),
+#        main = i,
+#        col = (datInt$pop=="1")+1,
+#        pch = 19,
+#        data=datInt)
+#   
+#   
+# }
+# plotFixed(2)
+# plotFixed(80)
+# 
+# 
+# 
+# dim(mainDFfixed)
+# head(mainDFfixed)
+# # Pop 2 always has the lower allele freqs
+# all(
+#   sapply(unique(mainDFfixed$Position), function(x){
+#     dff <- mainDFfixed[mainDFfixed$Position == x, ]
+#     mean(dff[dff$pop=="1", 3], na.rm=T) > mean(dff[dff$pop=="2", 3], na.rm =T)
+#   })
+# )
+# 
+# # flip allel frqs in pop 1
+# mainDFfixed[mainDFfixed$pop == "1", 3] <- 1 - mainDFfixed[mainDFfixed$pop == "1", 3]
+# # adjust qlogis vals
+# mainDFfixed$ylog <- log(mainDFfixed$AltProp)
+# 
+# mainDFfixed <- mainDFfixed[!is.infinite(mainDFfixed$ylog),]
+# 
+# head(mainDFfixed)
+# models <- lapply(unique(mainDFfixed$Position), function(x){
+#   dff <- mainDFfixed[mainDFfixed$Position == x, ]
+#   plot(dff$ylog~dff$xnqlogis, main = x)
+#   if(length(table(dff$pop))!=2) return(NULL)
+# 
+#   with(dff,{
+#     lm(ylog~1+pop, offset=xnqlogis)
+#   }
+#   )
+# })
+# which(sapply(models, is.null))
+# models <- models[-which(sapply(models, is.null))]
+# summary(models[[3]])
+# intercepts <- t(sapply(models, function(x) coef(summary(x))[,1]))
+# interceptsAdj <- t(apply(intercepts, 1, function(x) c(x[1], sum(x))))
+# head(intercepts)
+# head(interceptsAdj)
+# plot(intercepts)
+# plot(interceptsAdj, asp=1)
+# grid()
+# abline(0,1)
+# 
+# # whichever intwrcept is the higher one, is the estimate!
+# estDiverg <- apply(interceptsAdj, 1, max)
+# hist(exp(estDiverg)*100)
+# 
+# 
+# 
+# 
+# hist(diffs)
+# 
+# coef(summary(models[[1]]))[3,1]
