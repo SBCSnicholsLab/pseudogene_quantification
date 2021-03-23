@@ -63,7 +63,7 @@ gtList <- lapply(1:4, function(x) {
 })
 
 lapply(gtList, dim)
-# 7477*4 = 29908
+# 7784*4 = 31136
 
 # flatten into four vectors
 rm(c) # In case somebody named a variable c, which would shadow the c function.
