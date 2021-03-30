@@ -191,7 +191,7 @@ mainDF <- mainDF[!is.na(mainDF$xnqlogis),]
 #             pch = 19,
 #             data=datInt)
 # 
-#   
+# 
 # }
 # plotFixed(2)
 # plotFixed(80)
@@ -240,6 +240,17 @@ mainDF <- mainDF[!is.na(mainDF$xnqlogis),]
 # plot(interceptsAdj, asp=1, xlim=c(-12,-7), ylim=c(-12,-7))
 # grid()
 # abline(0,1)
+# interceptsAdjHopper <- interceptsAdj # for use in parrot script
 # 
 # hist(apply(interceptsAdj, 1, max))
-# hist(exp(apply(interceptsAdj, 1, max)))
+# meanEstFromFixed <- exp(apply(interceptsAdj, 1, max))
+# shapiro.test(meanEstFromFixed) # not significantly different from normal
+# # Mean estimate
+# mean(meanEstFromFixed)*100
+# # 95% confidence interval
+# quantile(meanEstFromFixed, c(0.025, 0.975))*100
+# 
+# hist(meanEstFromFixed*100, main="Grasshopper (fixed SNPs)", xlab="Estimate of NUMT proportion (in percent)")
+# abline(v=mean(meanEstFromFixed*100), lwd=2)
+# abline(v=quantile(meanEstFromFixed*100, c(0.025, 0.975)), lty=2, lwd=2)
+# legend("topleft", lty=c(1, 2), lwd=2, legend=c("Mean","95% CI"))

@@ -129,6 +129,32 @@ head(mainDF)
 # 
 # # population divergence ####
 # 
+# # samples and SRA ids from NCBI
+# idTab <- as.data.frame(rbind(
+# c("SRR6214420", "B41207"),
+# c("SRR6214421", "B4471"),
+# c("SRR6214422", "B2117"),
+# c("SRR6214423", "B22946"),
+# c("SRR6214424", "B18697"),
+# c("SRR6214425", "B20203"),
+# c("SRR6214426", "B2966"),
+# c("SRR6214427", "B32871"),
+# c("SRR6214428", "B22948"),
+# c("SRR6214429", "B28284"),
+# c("SRR6214430", "R7511"),
+# c("SRR6214431", "HLW99"),
+# c("SRR6214432", "HLW77"),
+# c("SRR6214433", "HLW90"),
+# c("SRR6214434", "B49688"),
+# c("SRR6214435", "B49747"),
+# c("SRR6214436", "B46433"),
+# c("SRR6214437", "B47715"),
+# c("SRR6214438", "B9297"),
+# c("SRR6214439", "HLW7303"),
+# c("SRR6214440", "B51936"),
+# c("SRR6214441", "B54105")
+# ))
+# names(idTab) <- c("SRA", "ID")
 # 
 # dim(gtsHC)
 # head(gtsHC)
@@ -138,9 +164,16 @@ head(mainDF)
 # summary(pc01)
 # str(pc01)
 # pc01$x[,1:2]
-# 
+# pcCoords <- data.frame(SRA=rownames(pc01$x[,1:2]), pc01$x[,1:2])
+# pcCoords <- merge(idTab, pcCoords, by="SRA")
 # # PCA separates two clusters of individuals
-# plot(pc01$x[,1:2], asp = 3/90, main="PCA mitotypes")
+# plot(pcCoords[,3:4], main="PCA mitotypes")
+# plot(pcCoords[,3:4], main="PCA mitotypes", asp=3/90)
+# 
+# # Same groups as in McElroy 2018:
+# as.character(pcCoords[pcCoords[,3]<0,]$ID)
+# as.character(pcCoords[pcCoords[,3]>0,]$ID)
+# 
 # 
 # # Which sites have fixed differences between the groups? ####
 # 
@@ -185,10 +218,11 @@ head(mainDF)
 #        col = (datInt$pop=="1")+1,
 #        pch = 19,
 #        data=datInt)
-#   
-#   
+# 
+# 
 # }
 # plotFixed(2)
+# plotFixed(3)
 # plotFixed(80)
 # 
 # 
@@ -233,13 +267,34 @@ head(mainDF)
 # grid()
 # abline(0,1)
 # 
-# # whichever intwrcept is the higher one, is the estimate!
+# # whichever intercept is the higher one, is the estimate!
 # estDiverg <- apply(interceptsAdj, 1, max)
 # hist(exp(estDiverg)*100)
 # 
 # 
 # 
 # 
-# hist(diffs)
+# # plot comparing to grasshopper values
+# plot(interceptsAdjHopper, asp=1, xlim=c(-10,-7), ylim=c(-13,-7),
+#      xlab= "Relative allele frequency in population A",
+#      ylab= "Relative allele frequency in population B",
+#      xaxt = 'n',
+#      yaxt = 'n',
+#      type='n'
+# )
 # 
-# coef(summary(models[[1]]))[3,1]
+# axis(1, at = log(c(10^-5, 3*10^-5, 10^-4, 3*10^-4, 10^-3)),
+#      labels = expression("10"^-5, "3×10"^-5, "10"^-4, "3×10"^-4, "10"^-3))
+# abline(v = log(c(10^-5, 3*10^-5, 10^-4, 3*10^-4, 10^-3)), col = "grey", lty=3)
+# 
+# axis(2, at = log(c(3*10^-6, 10^-5, 3*10^-5, 10^-4, 3*10^-4, 10^-3)),
+#      labels = expression("3×10"^-6, "10"^-5, "3×10"^-5, "10"^-4, "3×10"^-4, "10"^-3))
+# abline(h = log(c(3*10^-6, 10^-5, 3*10^-5, 10^-4, 3*10^-4, 10^-3)), col = "grey", lty=3)
+# 
+# 
+# 
+# points(interceptsAdjHopper, col = 1)
+# points(interceptsAdj, col = 2)
+# 
+# abline(0,1, lty=2)
+# legend("bottomleft", pch=1, col = c(1,2), legend = c("Grasshopper", "Parrot"))
