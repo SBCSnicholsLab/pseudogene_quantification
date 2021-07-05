@@ -5,7 +5,9 @@
 ################
 # mapping depths
 
+# adjust directory
 setwd("~/git_repos/pseudogene_quantification/data/grasshopper/")
+
 dir()
 nSamp = 52
 # a utility function to rename the mapping depth vals
@@ -114,68 +116,127 @@ mainDF <- mainDF[!is.na(mainDF$xnqlogis),]
 # Write out data
 #write.table(mainDF, "transformedData.csv")
 
+
+
 #################################################
 # Diverged populations and fixed differences ####
 #################################################
 
-# 
-# # population divergence ####
-# 
-# 
-# dim(gtsHC)
-# head(gtsHC)
-# pc01 <- prcomp(t(gtsHC[,1:nSamp]))
-# 
-# # PC1 accounts for >60% of the variance, PC2 for <3%
-# summary(pc01)
-# str(pc01)
-# pc01$x[,1:2]
-# 
-# # PCA separates two clusters of individuals
-# plot(pc01$x[,1:2], asp = 6/64, main="PCA mitotypes")
-# 
-# # Which sites have fixed differences between the groups? ####
-# 
-# # Get sample names of PCA rgoups
-# pop0 <- rownames(pc01$x)[pc01$x[,1]>0]
-# pop1 <- rownames(pc01$x)[pc01$x[,1]<0]
-# 
-# # Get indices
-# pop0ind <- which(names(gtsHC) %in% pop0)
-# pop1ind <- which(names(gtsHC) %in% pop1)
-# 
-# # A function to check whether there is sharing of alleles
-# #  (for an individual locus)
-# is.fixed.diff <- function(x, ind0, ind1){
-#   !any(x[ind0] %in% x[ind1])
-# }
-# 
-# # The first locus in gtsHC is not fixed:
-# is.fixed.diff(gtsHC[1,], pop1ind, pop0ind)
-# 
-# cov15 <- c(names(which(mappingProp > 0.002)), "POS")
-# 
-# 
-# names(gtsHC) %in% cov15
-# gtsCov15 <- gtsHC[, names(gtsHC) %in% cov15]
-# 
-# pop0.15 <- pop0[pop0 %in% names(gtsCov15)]
-# pop1.15 <- pop1[pop1 %in% names(gtsCov15)]
-# pop0ind.15 <- which(names(gtsCov15) %in% pop0.15)
-# pop1ind.15 <- which(names(gtsCov15) %in% pop1.15)
-# 
-# 
-# head(gtsCov15)
-# fixedInd <- apply(gtsCov15, 1, function(x) is.fixed.diff(x, pop0ind.15, pop1ind.15))
-# sum(fixedInd)
-# 
-# fixedPos <- paste0("S", sprintf("%05d", gtsHC$POS[fixedInd]))
-# 
-# 
+
+# population divergence ####
+
+
+dim(gtsHC)
+head(gtsHC)
+pc01 <- prcomp(t(gtsHC[,1:nSamp]))
+
+# PC1 accounts for >60% of the variance, PC2 for <3%
+summary(pc01)
+str(pc01)
+pc01$x[,1:2]
+
+# PCA separates two clusters of individuals
+plot(pc01$x[,1:2], asp = 6/64, main="PCA mitotypes")
+
+# Which sites have fixed differences between the groups? ####
+
+# Get sample names of PCA rgoups
+pop0 <- rownames(pc01$x)[pc01$x[,1]>0]
+pop1 <- rownames(pc01$x)[pc01$x[,1]<0]
+
+# Get indices
+pop0ind <- which(names(gtsHC) %in% pop0)
+pop1ind <- which(names(gtsHC) %in% pop1)
+
+# A function to check whether there is sharing of alleles
+#  (for an individual locus)
+is.fixed.diff <- function(x, ind0, ind1){
+  !any(x[ind0] %in% x[ind1])
+}
+
+# The first locus in gtsHC is not fixed:
+is.fixed.diff(gtsHC[1,], pop1ind, pop0ind)
+
+cov15 <- c(names(which(mappingProp > 0.002)), "POS")
+
+
+names(gtsHC) %in% cov15
+gtsCov15 <- gtsHC[, names(gtsHC) %in% cov15]
+
+pop0.15 <- pop0[pop0 %in% names(gtsCov15)]
+pop1.15 <- pop1[pop1 %in% names(gtsCov15)]
+pop0ind.15 <- which(names(gtsCov15) %in% pop0.15)
+pop1ind.15 <- which(names(gtsCov15) %in% pop1.15)
+
+
+head(gtsCov15)
+fixedInd <- apply(gtsCov15, 1, function(x) is.fixed.diff(x, pop0ind.15, pop1ind.15))
+sum(fixedInd)
+
+fixedPos <- paste0("S", sprintf("%05d", gtsHC$POS[fixedInd]))
+
+################################################
+# n over N ####
+################################################
+
+allCountsLonger <- data.frame(sample=sampleIndex, pos = paste0("S",rep(sprintf("%05d",gtsHC$POS), nSamp)), 
+           g1=gtVectors[[1]], g2=gtVectors[[2]], g3=gtVectors[[3]], g4=gtVectors[[4]])
+
+
+head(allCountsLonger)
+str(allCountsLonger)
+# takes a while
+allCountsLonger$ref <- sapply(1:nrow(allCountsLonger),
+                             function(x) max(allCountsLonger[x, 3:6]))
+# takes a while
+allCountsLonger$depth <- sapply(1:nrow(allCountsLonger),
+                                function(x) sum(allCountsLonger[x, 3:6]))
+allCountsLonger$alt <- allCountsLonger$depth - allCountsLonger$ref
+
+
+# use a join to get the subset of allDF with fixedDifferences
+allCountsFixed <- merge(allCountsLonger, data.frame(pos = fixedPos), by="pos")
+dim(allCountsLonger)
+dim(allCountsFixed)
+head(allCountsFixed)
+
+# same order?
+all(names(nMapped) == names(nTot))
+# yes.
+
+
+# another join to get the numbers of non-mitolike reads (i.e. N)
+allCountsFixedN <- merge(allCountsFixed, data.frame(sample=names(nMapped), N=unname(nTot-nMapped)), by="sample")
+dim(allCountsFixed)
+dim(allCountsFixedN) # we have not lost any lines
+
+head(allCountsFixedN)
+hist(allCountsFixedN$ref - allCountsFixedN$alt)
+min(allCountsFixedN$ref - allCountsFixedN$alt)
+
+allCountsFixedN$pop <- ifelse(allCountsFixedN$sample %in% pop1, "A", "B")
+
+allCountsFixedN$noverN <- allCountsFixedN$alt/allCountsFixedN$N
+allCountsFixedN$pop <- as.character(allCountsFixedN$pop)
+allCountsFixedN$pos <- as.character(allCountsFixedN$pos)
+head(allCountsFixedN)
+altMeans <- tapply(1:nrow(allCountsFixedN), list(allCountsFixedN$pos, allCountsFixedN$pop),
+       function(x) mean(allCountsFixedN[x,]$noverN))
+
+# plot 
+plot(altMeans)
+
+# log axes
+plot(altMeans, log="xy")
+grid()
+
+##########################
+# other ####
+##########################
 # mainDFfixed <- mainDF[mainDF$Position %in% fixedPos,]
 # mainDFfixed$pop <- ifelse(mainDFfixed$Sample %in% pop0, "1", "2")
 # head(mainDFfixed)
-# 
+
 # 
 # plotFixed <- function(x){
 #   i <- fixedPos[x]
