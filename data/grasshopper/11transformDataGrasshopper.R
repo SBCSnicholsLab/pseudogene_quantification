@@ -138,6 +138,14 @@ pc01$x[,1:2]
 # PCA separates two clusters of individuals
 plot(pc01$x[,1:2], asp = 6/64, main="PCA mitotypes")
 
+# # optional
+# library(ggplot2)
+# library(ggrepel) # too many overlapping points
+# plotDF <- data.frame(pc01$x[,1:2])
+# ggplot(plotDF, aes(PC1, PC2, label=rownames(plotDF))) +
+#   geom_text_repel() +
+#   geom_point()
+
 # Which sites have fixed differences between the groups? ####
 
 # Get sample names of PCA rgoups
@@ -176,7 +184,7 @@ sum(fixedInd)
 fixedPos <- paste0("S", sprintf("%05d", gtsHC$POS[fixedInd]))
 
 ################################################
-# n over N ####
+# New statistic ####
 ################################################
 
 allCountsLonger <- data.frame(sample=sampleIndex, pos = paste0("S",rep(sprintf("%05d",gtsHC$POS), nSamp)), 
@@ -185,14 +193,14 @@ allCountsLonger <- data.frame(sample=sampleIndex, pos = paste0("S",rep(sprintf("
 
 head(allCountsLonger)
 str(allCountsLonger)
-# takes a while
-allCountsLonger$ref <- sapply(1:nrow(allCountsLonger),
-                             function(x) max(allCountsLonger[x, 3:6]))
-# takes a while
-allCountsLonger$depth <- sapply(1:nrow(allCountsLonger),
-                                function(x) sum(allCountsLonger[x, 3:6]))
-allCountsLonger$alt <- allCountsLonger$depth - allCountsLonger$ref
 
+# A matrix to indicate which allele is has the highest count in each individual at each locus (position).
+# There are ties, which we will resolve later, comparing across individuals within each sub-population.
+maxMat <- t(apply(as.matrix(allCountsLonger[, 3:6]), 1, function(x) (x == max(x))))
+dim(maxMat)
+
+allCountsLonger <- data.frame(allCountsLonger, maxMat)
+head(allCountsLonger)
 
 # use a join to get the subset of allDF with fixedDifferences
 allCountsFixed <- merge(allCountsLonger, data.frame(pos = fixedPos), by="pos")
@@ -200,34 +208,84 @@ dim(allCountsLonger)
 dim(allCountsFixed)
 head(allCountsFixed)
 
+# Adding a column for N (the non-mitolike reads)
 # same order?
 all(names(nMapped) == names(nTot))
 # yes.
-
-
-# another join to get the numbers of non-mitolike reads (i.e. N)
+# another join to get the numbers of non-mitolike reads
 allCountsFixedN <- merge(allCountsFixed, data.frame(sample=names(nMapped), N=unname(nTot-nMapped)), by="sample")
 dim(allCountsFixed)
 dim(allCountsFixedN) # we have not lost any lines
 
-head(allCountsFixedN)
-hist(allCountsFixedN$ref - allCountsFixedN$alt)
-min(allCountsFixedN$ref - allCountsFixedN$alt)
-
 allCountsFixedN$pop <- ifelse(allCountsFixedN$sample %in% pop1, "A", "B")
-
-allCountsFixedN$noverN <- allCountsFixedN$alt/allCountsFixedN$N
+head(allCountsFixedN)
+str(allCountsFixedN)
+# get rid of unneeded factor levels
 allCountsFixedN$pop <- as.character(allCountsFixedN$pop)
 allCountsFixedN$pos <- as.character(allCountsFixedN$pos)
-head(allCountsFixedN)
-altMeans <- tapply(1:nrow(allCountsFixedN), list(allCountsFixedN$pos, allCountsFixedN$pop),
-       function(x) mean(allCountsFixedN[x,]$noverN))
+majAlleles <- tapply(1:nrow(allCountsFixedN), list(allCountsFixedN$pos, allCountsFixedN$pop), function(x) {
+  a <- colSums(allCountsFixedN[x,7:10])
+  which(a == max(a))
+})
+majAlleles <- data.frame(majAlleles, pos = rownames(majAlleles))
+# All major alleles are different between the sub-pops (no 0 in the histogram):
+hist(majAlleles$A - majAlleles$B)
 
+allCountsFixedN <- merge(allCountsFixedN, majAlleles, by = "pos")
+# update the major allele matrix
+oneTrue <- function(x){
+  a = c(F, F, F, F)
+  a[x] <- T
+  a
+}
+# oneTrue(2)
+# This is only 6k rows, so we can use sapply.
+majMat <- as.matrix(t(sapply(1:nrow(allCountsFixedN), function(x) {
+  c(oneTrue(allCountsFixedN[x, ]$A),
+    oneTrue(allCountsFixedN[x, ]$B)
+  )})))
+# only one major allele now?
+all(rowSums(majMat) == 2)
+# yes, there are two because there's one major allele in A and one in B
+colnames(majMat) <- c("A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4")
+dim(majMat)
+dim(allCountsFixedN)
+head(allCountsFixedN)
+allCountsFixedN <- data.frame(allCountsFixedN[, -c(7:10)], majMat)
+head(allCountsFixedN)
+
+# get numbers for each locus and allele aMaj and bAlt are sometimes indentical,
+# but only if there were only two alleles.
+aMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,11:14])
+bMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,15:18])
+aAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,11:14])
+bAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,15:18])
+allCountsFixedN <- data.frame(allCountsFixedN, aMaj, aAlt, bMaj, bAlt)
+head(allCountsFixedN)
+str(allCountsFixedN)
+# testSet <- allCountsFixedN[allCountsFixedN$pos == "S00535", ]
+# tapply(1:nrow(testSet), testSet$pop, function(y){
+#   colSums(testSet[y,c(7, 19:22)])
+# })
+
+newStat <- do.call(rbind, 
+                   tapply(1:nrow(allCountsFixedN), allCountsFixedN$pos, function(x){
+  a <- allCountsFixedN[x,]
+  sums <- tapply(1:nrow(a), a$pop, function(y){
+    colSums(a[y,c(7, 19:22)])
+  })
+  stats <- (c(aAlt = unname(sums$A["aAlt"]/sums$A["N"] + sums$B["bMaj"]/sums$B["N"]),
+              bAlt = unname(sums$B["bAlt"]/sums$B["N"] + sums$A["aMaj"]/sums$A["N"])
+  ))
+  
+}))
+head(newStat)
 # plot 
-plot(altMeans)
+plot(newStat)
+grid()
 
 # log axes
-plot(altMeans, log="xy")
+plot(newStat, log="xy")
 grid()
 
 ##########################
