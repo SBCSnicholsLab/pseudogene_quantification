@@ -288,6 +288,12 @@ grid()
 plot(newStat, log="xy")
 grid()
 
+# Histograms
+hist(newStat)
+hist(newStat[,1], col = "#FF000040", add=T)
+hist(newStat[,2], col = "#00FF0040", add=T)
+legend("topright", fill=c("white", "#FF000040", "#00FF0040"),
+       legend = c("all", "aAlt", "bAlt"))
 ##########################
 # other ####
 ##########################
