@@ -213,7 +213,9 @@ head(allCountsFixed)
 all(names(nMapped) == names(nTot))
 # yes.
 # another join to get the numbers of non-mitolike reads
-allCountsFixedN <- merge(allCountsFixed, data.frame(sample=names(nMapped), N=unname(nTot-nMapped)), by="sample")
+allCountsFixedN <- merge(allCountsFixed, data.frame(sample=names(nMapped),
+                                                    N=unname(nTot-nMapped),
+                                                    M=unname(nMapped)), by="sample")
 dim(allCountsFixed)
 dim(allCountsFixedN) # we have not lost any lines
 
@@ -253,32 +255,49 @@ dim(allCountsFixedN)
 head(allCountsFixedN)
 allCountsFixedN <- data.frame(allCountsFixedN[, -c(7:10)], majMat)
 head(allCountsFixedN)
-
+allCountsFixedN$allDep <- rowSums(allCountsFixedN[,3:6])
+head(allCountsFixedN)
 # get numbers for each locus and allele aMaj and bAlt are sometimes indentical,
 # but only if there were only two alleles.
-aMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,11:14])
-bMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,15:18])
-aAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,11:14])
-bAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,15:18])
+aMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,12:15])
+bMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,16:19])
+aAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,12:15])
+bAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,16:19])
 allCountsFixedN <- data.frame(allCountsFixedN, aMaj, aAlt, bMaj, bAlt)
 head(allCountsFixedN)
+allCountsFixedN[allCountsFixedN$pop == "A" & allCountsFixedN$pos == "S00535",-1]
+allCountsFixedN[allCountsFixedN$pop == "A" & allCountsFixedN$pos == "S01184",-1]
 str(allCountsFixedN)
 # testSet <- allCountsFixedN[allCountsFixedN$pos == "S00535", ]
 # tapply(1:nrow(testSet), testSet$pop, function(y){
-#   colSums(testSet[y,c(7, 19:22)])
+#   colSums(testSet[y,c(7,8, 20:24)])
 # })
 
+# newStat <- do.call(rbind, 
+#                    tapply(1:nrow(allCountsFixedN), allCountsFixedN$pos, function(x){
+#   a <- allCountsFixedN[x,]
+#   sums <- tapply(1:nrow(a), a$pop, function(y){
+#     colSums(a[y,c(7, 19:22)])
+#   })
+#   stats <- (c(aAlt = unname(sums$A["aAlt"]/sums$A["N"] + sums$B["bMaj"]/sums$B["N"]),
+#               bAlt = unname(sums$B["bAlt"]/sums$B["N"] + sums$A["aMaj"]/sums$A["N"])
+#   ))
+#   
+# }))
 newStat <- do.call(rbind, 
                    tapply(1:nrow(allCountsFixedN), allCountsFixedN$pos, function(x){
-  a <- allCountsFixedN[x,]
-  sums <- tapply(1:nrow(a), a$pop, function(y){
-    colSums(a[y,c(7, 19:22)])
-  })
-  stats <- (c(aAlt = unname(sums$A["aAlt"]/sums$A["N"] + sums$B["bMaj"]/sums$B["N"]),
-              bAlt = unname(sums$B["bAlt"]/sums$B["N"] + sums$A["aMaj"]/sums$A["N"])
-  ))
-  
-}))
+                     a <- allCountsFixedN[x,]
+                     sums <- tapply(1:nrow(a), a$pop, function(y){
+                       colSums(a[y,c(7,8, 20:24)])
+                     })
+                     stats <- (c(aAlt = unname(sums$A["aAlt"]/sums$A["allDep"]*sums$A["M"]/sums$A["N"] + sums$B["bMaj"]/sums$B["allDep"]*sums$B["M"]/sums$B["N"]),
+                                 bAlt = unname(sums$B["bAlt"]/sums$B["allDep"]*sums$B["M"]/sums$B["N"] + sums$A["aMaj"]/sums$A["allDep"]*sums$A["M"]/sums$A["N"])
+                     ))
+                     
+                   }))
+
+
+
 head(newStat)
 # plot 
 plot(newStat)
