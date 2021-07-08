@@ -6,7 +6,8 @@
 # mapping depths
 
 # adjust directory
-setwd("~/git_repos/pseudogene_quantification/data/grasshopper/")
+# setwd("~/git_repos/pseudogene_quantification/data/grasshopper/")
+setwd("~/Documents/GitHub/pseudogene_quantification/data/grasshopper")
 
 dir()
 nSamp = 52
