@@ -6,8 +6,8 @@
 # mapping depths
 
 # adjust directory
-# setwd("~/git_repos/pseudogene_quantification/data/grasshopper/")
-setwd("~/Documents/GitHub/pseudogene_quantification/data/grasshopper")
+setwd("~/git_repos/pseudogene_quantification/data/grasshopper/")
+# setwd("~/Documents/GitHub/pseudogene_quantification/data/grasshopper")
 
 dir()
 nSamp = 52
@@ -314,6 +314,62 @@ hist(newStat[,1], col = "#FF000040", add=T)
 hist(newStat[,2], col = "#00FF0040", add=T)
 legend("topright", fill=c("white", "#FF000040", "#00FF0040"),
        legend = c("all", "aAlt", "bAlt"))
+
+
+# Richards attempt at the new statistics ###################################################
+############################################################################################
+
+# extract site names & number
+siteNames <- unique(allCountsFixedN$pos)
+nSites <- length(siteNames)
+Ascores <- Bscores <- rep(0,nSites)
+
+for (i in 1:nSites){# create matrices with counts for the A populations and B populations
+  gmatA <- as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')[,3:6])
+  gmatB <- as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')[,3:6])
+  
+  # create matrixes identifying the non mito alleles in each population 
+  # and the mito allele in the opposite population (where it will be non-mito)
+  # For the A population:
+  notMitoAlleleA <- !as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')[,12:15])
+  AmitoAlleleInB <-  as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')[,12:15])
+  # For the B populations
+  notMitoAlleleB <- !as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')[,16:19]) 
+  BmitoAlleleInA <-  as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')[,16:19])
+  mA <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')$M
+  mB <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')$M
+  nA <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')$N
+  nB <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')$N
+  
+  Ascores[i] <- sum(rowSums(gmatA * notMitoAlleleA) / rowSums(gmatA) * mA) / sum(nA) +
+                sum(rowSums(gmatB * AmitoAlleleInB) / rowSums(gmatB) * mB) / sum(nB)  
+  Bscores[i] <- sum(rowSums(gmatB * notMitoAlleleB) / rowSums(gmatB) * mB) / sum(nB) +
+                sum(rowSums(gmatA * BmitoAlleleInA) / rowSums(gmatA) * mA) / sum(nA)  
+  }
+
+
+plot(Ascores, Bscores)
+abline(0,1)
+abline(coef(lm(Bscores ~ Ascores)), col = "Blue")
+abline(v = mean(Ascores), col='Orange')
+abline(h = mean(Bscores), col='Orange')
+
+noquote(paste("Mean of A Scores: ",
+      signif(mean(Ascores), 3),
+      " (SE ",
+      signif(sqrt(var(Ascores)/nSites),2),
+      ")"
+      ))
+
+noquote(paste("Mean of B Scores: ",
+              signif(mean(Bscores), 3),
+              " (SE ",
+              signif(sqrt(var(Bscores)/nSites),2),
+              ")"
+))
+
+
+
 ##########################
 # other ####
 ##########################
