@@ -368,7 +368,11 @@ noquote(paste("Mean of B Scores: ",
               ")"
 ))
 
-
+plot(as.numeric(substr(siteNames, 2, 6)), Ascores, type="l",
+     xlab="Position in mitogenome",
+     ylab="Score")
+points(as.numeric(substr(siteNames, 2, 6)), Bscores, col="grey", type="l")
+legend("top", lty=1, col=c("black","grey"), legend=c("Ascores","Bscores"))
 
 ##########################
 # other ####
