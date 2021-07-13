@@ -316,7 +316,7 @@ legend("topright", fill=c("white", "#FF000040", "#00FF0040"),
        legend = c("all", "aAlt", "bAlt"))
 
 
-# Richards attempt at the new statistics ###################################################
+# Richard's attempt at the new statistics ###################################################
 ############################################################################################
 
 # extract site names & number
@@ -374,88 +374,18 @@ plot(as.numeric(substr(siteNames, 2, 6)), Ascores, type="l",
 points(as.numeric(substr(siteNames, 2, 6)), Bscores, col="grey", type="l")
 legend("top", lty=1, col=c("black","grey"), legend=c("Ascores","Bscores"))
 
-##########################
-# other ####
-##########################
-# mainDFfixed <- mainDF[mainDF$Position %in% fixedPos,]
-# mainDFfixed$pop <- ifelse(mainDFfixed$Sample %in% pop0, "1", "2")
-# head(mainDFfixed)
+plot(Ascores, Bscores)
+lm0 <- lm(Bscores~Ascores)
+lm1 <- lm(Bscores~Ascores, offset = Ascores)
+summary(lm0)
+summary(lm1)
+abline(lm0)
+abline(0, 1, lty = 2)
 
-# 
-# plotFixed <- function(x){
-#   i <- fixedPos[x]
-#   print(x)
-#   datInt <- mainDFfixed[mainDFfixed$Position==i,]
-#   datInt <- datInt[!is.na(datInt$ylog),]
-#   datInt <- datInt[!is.na(datInt$xnqlogis),]
-#        plot(ylog~xnqlogis,
-#             xlim=c(0, 9.5),
-#             ylim=c(-8,0),
-#             main = i,
-#             col = (datInt$pop=="1")+1,
-#             pch = 19,
-#             data=datInt)
-# 
-# 
-# }
-# plotFixed(2)
-# plotFixed(80)
-# 
-# 
-# par(mfrow=c(5,5))
-# sapply(1:25, function(x) plotFixed(x))
-# sapply(26:50, function(x) plotFixed(x))
-# sapply(51:75, function(x) plotFixed(x))
-# sapply(76:100, function(x) plotFixed(x))
-# sapply(101:111, function(x) plotFixed(x))
-# par(mfrow=c(1,1))
-# 
-# dim(mainDFfixed)
-# head(mainDFfixed)
-# # Pop 1 always has the lower allele freqs
-# all(
-#   sapply(unique(mainDFfixed$Position), function(x){
-#   dff <- mainDFfixed[mainDFfixed$Position == x, ]
-#   mean(dff[dff$pop=="1", 3], na.rm=T) < mean(dff[dff$pop=="2", 3], na.rm =T)
-# })
-# )
-# 
-# # flip allel frqs in pop 2
-# mainDFfixed[mainDFfixed$pop == "2", 3] <- 1 - mainDFfixed[mainDFfixed$pop == "2", 3]
-# # adjust qlogis vals
-# mainDFfixed$ylog <- log(mainDFfixed$AltProp)
-# mainDFfixed$ylog[is.infinite(mainDFfixed$ylog)] <- NA
-# 
-# head(mainDFfixed)
-# models <- lapply(unique(mainDFfixed$Position), function(x){
-#   dff <- mainDFfixed[mainDFfixed$Position == x, ]
-#   plot(dff$ylog~dff$xnqlogis, main = x)
-#   with(dff,{
-#     lm(ylog~1+pop, offset=xnqlogis)
-#   }
-#   )
-# })
-# 
-# summary(models[[3]])
-# intercepts <- t(sapply(models, function(x) coef(summary(x))[,1]))
-# interceptsAdj <- t(apply(intercepts, 1, function(x) c(x[1], sum(x))))
-# head(intercepts)
-# head(interceptsAdj)
-# plot(intercepts)
-# plot(interceptsAdj, asp=1, xlim=c(-12,-7), ylim=c(-12,-7))
-# grid()
-# abline(0,1)
-# interceptsAdjHopper <- interceptsAdj # for use in parrot script
-# 
-# hist(apply(interceptsAdj, 1, max))
-# meanEstFromFixed <- exp(apply(interceptsAdj, 1, max))
-# shapiro.test(meanEstFromFixed) # not significantly different from normal
-# # Mean estimate
-# mean(meanEstFromFixed)*100
-# # 95% confidence interval
-# quantile(meanEstFromFixed, c(0.025, 0.975))*100
-# 
-# hist(meanEstFromFixed*100, main="Grasshopper (fixed SNPs)", xlab="Estimate of NUMT proportion (in percent)")
-# abline(v=mean(meanEstFromFixed*100), lwd=2)
-# abline(v=quantile(meanEstFromFixed*100, c(0.025, 0.975)), lty=2, lwd=2)
-# legend("topleft", lty=c(1, 2), lwd=2, legend=c("Mean","95% CI"))
+
+mappingDepths <- data.frame(nMapped, pop=rep("A", length(nMapped)), stringsAsFactors = F)
+mappingDepths$pop[pop0ind]
+mappingDepths$pop[pop1ind] <- "B"
+summary(lm(nMapped ~ pop, data=mappingDepths))
+plot(lm(nMapped ~ pop, data=mappingDepths))
+
