@@ -418,4 +418,21 @@ mappingDepths <- data.frame(nMapped, pop=rep("A", length(nMapped)), stringsAsFac
 mappingDepths$pop[pop0ind]
 mappingDepths$pop[pop1ind] <- "B"
 summary(lm(nMapped ~ pop, data=mappingDepths))
-plot(lm(nMapped ~ pop, data=mappingDepths))
+#plot(lm(nMapped ~ pop, data=mappingDepths))
+
+hist(Ascores[-161], col = "#0000FF40")
+hist(Bscores[-161], add = T, col = "#FF000040")
+
+noquote(paste("Mean of A Scores: ",
+              signif(mean(Ascores[-161]), 3),
+              " (SE ",
+              signif(sqrt(var(Ascores[-161])/(nSites-1)),2),
+              ")"
+))
+
+noquote(paste("Mean of B Scores: ",
+              signif(mean(Bscores[-161]), 3),
+              " (SE ",
+              signif(sqrt(var(Bscores)/(nSites-1)),2),
+              ")"
+))

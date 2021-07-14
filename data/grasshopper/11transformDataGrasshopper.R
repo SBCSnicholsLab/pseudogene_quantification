@@ -387,5 +387,7 @@ mappingDepths <- data.frame(nMapped, pop=rep("A", length(nMapped)), stringsAsFac
 mappingDepths$pop[pop0ind]
 mappingDepths$pop[pop1ind] <- "B"
 summary(lm(nMapped ~ pop, data=mappingDepths))
-plot(lm(nMapped ~ pop, data=mappingDepths))
+#plot(lm(nMapped ~ pop, data=mappingDepths))
 
+hist(Ascores, col = "#0000FF40")
+hist(Bscores, add = T, col = "#FF000040")
