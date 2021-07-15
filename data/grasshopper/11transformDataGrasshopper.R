@@ -184,9 +184,9 @@ sum(fixedInd)
 
 fixedPos <- paste0("S", sprintf("%05d", gtsHC$POS[fixedInd]))
 
-################################################
-# New statistic ####
-################################################
+###################################################
+# Additional estimate for diverged populations ####
+###################################################
 
 allCountsLonger <- data.frame(sample=sampleIndex, pos = paste0("S",rep(sprintf("%05d",gtsHC$POS), nSamp)), 
            g1=gtVectors[[1]], g2=gtVectors[[2]], g3=gtVectors[[3]], g4=gtVectors[[4]])
@@ -266,58 +266,11 @@ aAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,12:15])
 bAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,16:19])
 allCountsFixedN <- data.frame(allCountsFixedN, aMaj, aAlt, bMaj, bAlt)
 head(allCountsFixedN)
-allCountsFixedN[allCountsFixedN$pop == "A" & allCountsFixedN$pos == "S00535",-1]
-allCountsFixedN[allCountsFixedN$pop == "A" & allCountsFixedN$pos == "S01184",-1]
-str(allCountsFixedN)
-# testSet <- allCountsFixedN[allCountsFixedN$pos == "S00535", ]
-# tapply(1:nrow(testSet), testSet$pop, function(y){
-#   colSums(testSet[y,c(7,8, 20:24)])
-# })
-
-# newStat <- do.call(rbind, 
-#                    tapply(1:nrow(allCountsFixedN), allCountsFixedN$pos, function(x){
-#   a <- allCountsFixedN[x,]
-#   sums <- tapply(1:nrow(a), a$pop, function(y){
-#     colSums(a[y,c(7, 19:22)])
-#   })
-#   stats <- (c(aAlt = unname(sums$A["aAlt"]/sums$A["N"] + sums$B["bMaj"]/sums$B["N"]),
-#               bAlt = unname(sums$B["bAlt"]/sums$B["N"] + sums$A["aMaj"]/sums$A["N"])
-#   ))
-#   
-# }))
-newStat <- do.call(rbind, 
-                   tapply(1:nrow(allCountsFixedN), allCountsFixedN$pos, function(x){
-                     a <- allCountsFixedN[x,]
-                     sums <- tapply(1:nrow(a), a$pop, function(y){
-                       colSums(a[y,c(7,8, 20:24)])
-                     })
-                     stats <- (c(aAlt = unname(sums$A["aAlt"]/sums$A["allDep"]*sums$A["M"]/sums$A["N"] + sums$B["bMaj"]/sums$B["allDep"]*sums$B["M"]/sums$B["N"]),
-                                 bAlt = unname(sums$B["bAlt"]/sums$B["allDep"]*sums$B["M"]/sums$B["N"] + sums$A["aMaj"]/sums$A["allDep"]*sums$A["M"]/sums$A["N"])
-                     ))
-                     
-                   }))
 
 
 
-head(newStat)
-# plot 
-plot(newStat)
-grid()
-
-# log axes
-plot(newStat, log="xy")
-grid()
-
-# Histograms
-hist(newStat)
-hist(newStat[,1], col = "#FF000040", add=T)
-hist(newStat[,2], col = "#00FF0040", add=T)
-legend("topright", fill=c("white", "#FF000040", "#00FF0040"),
-       legend = c("all", "aAlt", "bAlt"))
-
-
-# Richard's attempt at the new statistics ###################################################
-############################################################################################
+# Richard's scores ###################################################
+#####################################################################
 
 # extract site names & number
 siteNames <- unique(allCountsFixedN$pos)
@@ -389,5 +342,6 @@ mappingDepths$pop[pop1ind] <- "B"
 summary(lm(nMapped ~ pop, data=mappingDepths))
 #plot(lm(nMapped ~ pop, data=mappingDepths))
 
-hist(Ascores, col = "#0000FF40")
+hist(Ascores, col = "#0000FF40", main = "", xlab="Scores")
 hist(Bscores, add = T, col = "#FF000040")
+legend("topright", fill=c("#0000FF40","#FF000040"), legend=c("A","B"))

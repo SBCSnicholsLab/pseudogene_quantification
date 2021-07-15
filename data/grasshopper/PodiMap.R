@@ -1,3 +1,4 @@
+# This is the code for the raw version of the Podisma map (figure 3b)
 setwd("~/git_repos/pseudogene_quantification/data/grasshopper/")
 sampDat <- read.csv("sampleData.csv", sep='\t')
 str(sampDat)
@@ -36,7 +37,7 @@ loConvert <- function(x){
 }
 
 laConvert(seq(laMin, laMax, 0.1))
-pdf("PodiMap.pdf")
+#pdf("PodiMap.pdf")
 image(area, col=grey.colors(20)[3:20],
       xaxt = 'n',
       yaxt = 'n', 
@@ -51,6 +52,6 @@ axis(2, at = laConvert(seq(laMin, laMax, 0.1)), labels = seq(laMin, laMax, 0.1))
 combs <- interaction(sampDat$Mitotype, sampDat$Karyotype)
 points(loConvert(sampDat$Long), laConvert(sampDat$Lat), pch = as.numeric(combs), lwd=2)
 legend("topright", pch=1:6, legend = levels(combs))
-dev.off()
+#dev.off()
 table(sampDat$Karyotype)
 
