@@ -387,6 +387,12 @@ noquote(paste("Mean of B Scores: ",
               signif(sqrt(var(Bscores)/(nSites-1)),2),
               ")"
 ))
-hist(Ascores[-161], col = "#0000FF40", main = "", xlab="Scores", ylim=c(0, 90))
-hist(Bscores[-161], add = T, col = "#FF000040")
-legend("topright", fill=c("#0000FF40","#FF000040"), legend=c("A","B"))
+hist(Ascores[-161], col = "#0000FF40", main = "Parrot", xlab="Scores", ylim=c(0, 90), xlim=c(0, 1/1000))
+abline(v=mean(Ascores[-161]), lwd=2)
+abline(v=mean(Ascores[-161]) + c(-1, 1) * sqrt(var(Ascores[-161])/(nSites-1)), lty=2)
+# intervals overlap
+# hist(Bscores[-161], col = "#FF000040", add=T)
+# abline(v=mean(Bscores[-161]), lwd=2)
+# abline(v=mean(Bscores[-161]) + c(-1, 1) * sqrt(var(Bscores[-161])/(nSites-1)), lty=2)
+# legend("topright", fill=c("#0000FF40","#FF000040"), legend=c("A","B"))
+

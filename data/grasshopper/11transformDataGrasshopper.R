@@ -342,6 +342,11 @@ mappingDepths$pop[pop1ind] <- "B"
 summary(lm(nMapped ~ pop, data=mappingDepths))
 #plot(lm(nMapped ~ pop, data=mappingDepths))
 
-hist(Ascores, col = "#0000FF40", main = "", xlab="Scores")
-hist(Bscores, add = T, col = "#FF000040")
-legend("topright", fill=c("#0000FF40","#FF000040"), legend=c("A","B"))
+hist(Ascores, col = "#0000FF40", main = "Grasshopper", xlab="Scores", xlim=c(0, 1/1000))
+abline(v=mean(Ascores), lwd=2)
+abline(v=mean(Ascores) + c(-1, 1) * sqrt(var(Ascores)/nSites), lty=2)
+# intervals overlap
+# hist(Bscores, add = T, col = "#FF000040")
+# abline(v=mean(Bscores), lwd=2)
+# abline(v=mean(Bscores) + c(-1, 1) * sqrt(var(Ascores)/nSites), lty=3)
+# legend("topright", fill=c("#0000FF40","#FF000040"), legend=c("A","B"))
