@@ -69,9 +69,7 @@ extrasIns <- function(x, seed, main=""){
   
   
   intercepts5 <- summary(lmod5)$coefficients[,1]
-  summary(intercepts5)
-  #hist(intercepts5)
-  
+  SEs5 <- summary(lmod5)$coefficients[,2]
   
   # rank intercepts, so allele freqs and slopes can be coloured in
   iranks <- rank(intercepts5, ties.method = "random")
@@ -100,10 +98,11 @@ extrasIns <- function(x, seed, main=""){
     abline(v=max(xnqlogis))
     abline(max(intercepts5), 1,  lty=2)
     estLB <<- exp(max(intercepts5))/ (1+exp(max(intercepts5)))
+    estLBse <<- SEs5[which(intercepts5 == max(intercepts5))][1] # S.E. in log space
     estUB <<- plogis(-max(goodDat$xnqlogis))
     text(c(2, 7), c(0,0), c(
-      paste0("Lower-bound: ", round(estLB*100, digits = 3), "%"),
-      paste0("Upper-bound: ", round(estUB*100, digits = 3), "%")
+      paste0("intercept est. ", round(estLB*100, digits = 3), "%"),
+      paste0("mapping depth est. ", round(estUB*100, digits = 3), "%")
     )
 
     )
@@ -115,7 +114,8 @@ extrasIns <- function(x, seed, main=""){
     #print(paste0("Lower-bound: ", estLB))
     #print(paste0("Upper-bound: ", estUB))
   })
-  return(c(lower=estLB, upper=estUB))
+  return(c(intercept.est=estLB, intercept.SE=unname(estLBse), depth.est=estUB))
+
 }
 
 
