@@ -119,14 +119,30 @@ extrasIns <- function(x, seed, main=""){
 }
 
 
-# Read in data ####
-setwd("~/git_repos/pseudogene_quantification/")
-# human data set
-humanDF <- read.table("data/human/transformedData.csv", stringsAsFactors = F)
-# parrot data set
-parrotDF <- read.table("data/parrot/transformedData.csv", stringsAsFactors = F)
-# grasshopper data set
-hopperDF <- read.table("data/grasshopper/transformedData.csv", stringsAsFactors = F)
+# Get data online ####
+# human
+download.file("https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/main/data/human/transformedData.csv",
+              destfile = "human.csv")
+humanDF <- read.table("human.csv", stringsAsFactors = F)
+
+#hopper
+download.file("https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/main/data/grasshopper/transformedData.csv",
+              destfile = "hopper.csv")
+hopperDF <- read.table("hopper.csv", stringsAsFactors = F)
+
+#parrot
+download.file("https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/main/data/parrot/transformedData.csv",
+              destfile = "parrot.csv")
+parrotDF <- read.table("parrot.csv", stringsAsFactors = F)
+
+# Alternatively, read in data from repo ####
+# setwd("~/git_repos/pseudogene_quantification/")
+# # human data set
+# humanDF <- read.table("data/human/transformedData.csv", stringsAsFactors = F)
+# # parrot data set
+# parrotDF <- read.table("data/parrot/transformedData.csv", stringsAsFactors = F)
+# # grasshopper data set
+# hopperDF <- read.table("data/grasshopper/transformedData.csv", stringsAsFactors = F)
 
 
 extrasIns(humanDF, seed = 12345, main="Human")
