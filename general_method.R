@@ -5,9 +5,27 @@
 
 library(lme4) 
 
+backtransform <- function(logVal){
+  #' Back-transform estimate
+  #
+  #' Tansforms an intercpet estimate from log(it) to linear space
+  #
+  #' @param logVal the value to be transfomred
+
+  return(exp(logVal) / (1 + exp(logVal)))
+}
 
 # The analysis function
 extrasIns <- function(x, seed, main=""){
+  #' Quantify vagrant DNA insters
+  #
+  #' Produces the intercept and mapping-depth estimates. Generates a rainbow plot.
+  #
+  #' @param x A dataframe
+  #' @param seed A numeric seed for the random selection of SNPs.
+  #' @param main Title to be shown above the rainbow plot.
+   
+  
   # The SNPs will have to be sub-sampled for analysis. Generate weights,
   #  biasing towards high freq and discrading very low-freq SNPs.
   wweights <- tapply(x$AltProp, x$Position, mean)
@@ -97,12 +115,19 @@ extrasIns <- function(x, seed, main=""){
     abline(h=max(intercepts5))
     abline(v=max(xnqlogis))
     abline(max(intercepts5), 1,  lty=2)
-    estLB <<- exp(max(intercepts5))/ (1+exp(max(intercepts5)))
-    estLBse <<- SEs5[which(intercepts5 == max(intercepts5))][1] # S.E. in log space
-    estUB <<- plogis(-max(goodDat$xnqlogis))
+    estIntlog <<- max(intercepts5)
+    estIntSE <<- SEs5[which(intercepts5 == max(intercepts5))][1] # S.E. in log space
+    estInt <<- backtransform(unname(c(intEst=estIntlog,
+                    intLo=estIntlog - (1.96 * estIntSE),
+                    intUp=estIntlog + (1.96 * estIntSE)
+                    ))
+                  )
+    estDep <<- plogis(-max(goodDat$xnqlogis))
     text(c(2, 7), c(0,0), c(
-      paste0("intercept est. ", round(estLB*100, digits = 3), "%"),
-      paste0("mapping depth est. ", round(estUB*100, digits = 3), "%")
+      paste0("intercept est: ", round(estInt[1]*100, digits = 3), "%\n",
+             "(", round(estInt[2]*100, digits = 3), "%-",
+             round(estInt[3]*100, digits = 3), "%)"),
+      paste0("mapping depth est: ", round(estDep*100, digits = 3), "%")
     )
 
     )
@@ -111,10 +136,13 @@ extrasIns <- function(x, seed, main=""){
       abline(intercepts5[x], 1, col = rainbow(remainingLoci, alpha = 0.2)[iranks][x])
     })
     print(paste0("Estimate based on ", length(intercepts5), " loci after filtering."))
-    #print(paste0("Lower-bound: ", estLB))
-    #print(paste0("Upper-bound: ", estUB))
+    #print(paste0("Lower-bound: ", estInt))
+    #print(paste0("Upper-bound: ", estDep))
   })
-  return(c(intercept.est=estLB, intercept.SE=unname(estLBse), depth.est=estUB))
+  return(c(intercept.est=estInt[1],
+           intercept.est.lo=estInt[2],
+           intercept.est.up=estInt[3],
+           depth.est=estDep))
 
 }
 
@@ -150,3 +178,4 @@ extrasIns(humanDF, seed = 12345, main="Human")
 extrasIns(hopperDF, seed = 12345, main="Grasshopper")
 
 extrasIns(parrotDF, seed = 12345, main="Parrot")
+
