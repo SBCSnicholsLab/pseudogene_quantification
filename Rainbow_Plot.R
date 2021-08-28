@@ -137,7 +137,7 @@ rainbowPlot <- function(data,
   # use the merge function to add these values the appropriate row in goodDat
   goodDat <- merge(goodDat, rankDF, by="Position")
 
-  # Put the points onto the rainbow plot  
+  # Put the raw data points for selected SNPs onto the rainbow plot  
   with(goodDat,{
     maxx <- max(c(10, xnqlogis))
     miny <- min(c(-10,max(intercepts5)))
@@ -163,18 +163,18 @@ rainbowPlot <- function(data,
     abline(max(intercepts5), 1,  lty=2)
     
     # Get intercepts and standard errors
-    estIntlog <<- max(intercepts5)
-    estIntSE <<- SEs5[which(intercepts5 == max(intercepts5))][1] # S.E. in log space
+    estIntlog <- max(intercepts5)
+    estIntSE <- SEs5[which(intercepts5 == max(intercepts5))][1] # S.E. in log space
     
     # Convert CI to real values
-    estInt <<- plogis(unname(c(intEst=estIntlog,
+    estInt <- plogis(unname(c(intEst=estIntlog,
                     intLo=estIntlog - (1.96 * estIntSE),
                     intUp=estIntlog + (1.96 * estIntSE)
                     ))
                   )
     
     # Add annotation to the plot
-    estDep <<- plogis(-max(goodDat$xnqlogis))
+    estDep <- plogis(-max(goodDat$xnqlogis))
     text(c(2, 7), c(0,0), c(
       paste0("intercept est: ", round(estInt[1]*100, digits = 3), "%\n",
              "(", round(estInt[2]*100, digits = 3), "%-",
@@ -205,7 +205,7 @@ rainbowPlot <- function(data,
     cat('Function call \n', deparse(funcCall))
   }
   
-  # Return the estimated values as an invisible object for further use
+  # Return the estimated values as an (initially) invisible object for further use
   invisible(list(intercepts = c(intercept.est=estInt[1],
                              intercept.est.lo=estInt[2],
                              intercept.est.up=estInt[3]),
