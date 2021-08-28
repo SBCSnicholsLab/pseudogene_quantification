@@ -10,7 +10,8 @@ library(lme4)
 
 #' Rainbow Plot
 #' Generate a plot to estimate the proportion of the nuclear genome
-#' made up of a particular vagrant sequence as introduced by
+#' made up of a particular vagrant sequence. The function produces the plots
+#' intercept estimate, and mapping depth estimate described by
 #' Becher & Nichols (2021) citation
 #' 
 #' @param data 
@@ -139,7 +140,7 @@ rainbowPlot <- function(data,
   # Put the points onto the rainbow plot  
   with(goodDat,{
     maxx <- max(c(10, xnqlogis))
-    miny <- min(c(-10,intercepts5))
+    miny <- min(c(-10,max(intercepts5)))
     plot(ylog~xnqlogis, col=rainbow(max(rank)*1.4)[rank], 
          pch=1, xlim=c(0,maxx), ylim=c(miny,0),
          xlab="(Un-mapped data / mapped)",
