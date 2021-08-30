@@ -8,66 +8,82 @@ library(lme4)
 
 
 
-#' Rainbow Plot
+#' Rainbow Plot.
+#' 
 #' Generate a plot to estimate the proportion of the nuclear genome
 #' made up of a particular vagrant sequence. The function produces the plots
 #' intercept estimate, and mapping depth estimate described by
-#' Becher & Nichols (2021) citation
+#' Becher & Nichols (2021) citation.
 #' 
-#' @param data 
-#' @param AltProp 
-#' @param Position 
-#' @param ylog 
-#' @param xnqlogis 
-#' @param Sample 
-#' @param nloci 
-#' @param minWt 
-#' @param maxFreq 
-#' @param minSamples 
-#' @param filterHard 
-#' @param seed 
-#' @param main 
-#' @param printout 
+#' @param data A data.frame with at least the following columns.
+#' #' \describe{
+#'   \item{AltProp}{A numberic vector giving the proportion of reads mapping to the exogenous genome}
+#'   \item{Position}{A factor (or structure that can be coerced to a factor),
+#'   giving a unique name for each SNP location.}
+#'   \item{Sample}{A factor (or structure that can be coerced to a factor),
+#'   giving a unique name for each sample.}
+#'   \item{ylog}{A numeric vector giving the log(p), where p is the relative frequency of the SNP allele(s) not found in
+#'   the exogenous genome.}
+#'   \item{xnqlogis}{A numeric vector giving log(m/N);
+#'   where m is the number of reads mapping to the exogenous genome and N is the remaining reads.}
+#' @param nloci The number of loci to be selected for the analysis. Default, 400.
+#' @param minWt The minimum average allele frequency of SNPs to be included in the analysis.
+#' Default, 0.01.
+#' @param maxFreq The maximum allele frequency of an individual observation to be included
+#' in the analysis. Default, 0.7.
+#' @param minSamples The minimum number of samples in which a SNP should be called in order to 
+#' be included in the analysis.
+#' @param filterHard If filterHard is TRUE, the SNP loci with slopes in the outer quartiles are
+#' discarded. Otherwise the outliers identified by the default method of boxplot.stats function
+#' are discarded. Default, TRUE.
+#' @param seed Random number seed. 
+#' @param title User-supplied title for the rainbow plot.
+#' @param printout If printout is TRUE, the function prints the estimates. Default, TRUE.
 #'
-#' @return
+#' @return An invisible list of the estimates and the function call 
+#' (an invisible list can be allocated to variable but is not automatically printed).
+#' \describe{
+#'   \item{intercepts}{A vector giving the intercept estimate,
+#'   the lower and upper 95% confidence interval bounds.m}
+#'   \item{depth.est}{A crude upper limit; 
+#'   the minimum (over samples) proportion of reads mapping to the exogenous genome.}
+#'   \item{num.loci}{The number of loci remaining after filtering, used
+#'   to obtain the intercept estimates.}
+#'   \item{func.params}{A record of the function call.}
+#' }
+
 #' @export
 #'
 #' @examples
+#' 
+#' 
 rainbowPlot <- function(data,
-                      AltProp = data$AltProp,
-                      Position = factor(data$Position),
-                      ylog = data$ylog,
-                      xnqlogis = data$xnqlogis,
-                      Sample = factor(data$Sample),
-                      nloci = 200,
+                      nloci = 400,
                       minWt = 0.01,
-                      maxFreq = 0.8,
+                      maxFreq = 0.7,
                       minSamples = 10,
                       filterHard = TRUE,
                       seed,
-                      main="",
+                      title = "",
                       printout = TRUE
                       ){
- 
-  if( any( c( !is.vector(AltProp), 
-              !is.factor(Position),
-              !is.vector(xnqlogis),
-              !is.vector(ylog),
-              !is.factor(Sample)
+  data$Position <- factor(data$Position)
+  data$Sample <- factor(data$Sample)
+  if( any( c( !is.vector(data$AltProp), 
+              !is.factor(data$Position),
+              !is.vector(data$xnqlogis),
+              !is.vector(data$ylog),
+              !is.factor(data$Sample)
               )
            )
-      ) stop("You must either supply a dataframe containing a factors Position & Sample (or vectors which can be coerced to a factor), \n 
-              \t plus vectors AltProp, ylog & xnqlogis \n 
-              \t or specify them as separate Arguments")
+      ) stop("Supply a dataframe containing a factors Position & Sample (or vectors which can be coerced to a factor), \n 
+              \t plus vectors AltProp, ylog & xnqlogis")
   
   if( !require(lme4)
       ) stop("Install package lme4 before running this function")
   
   # Save the function call
   funcCall <- sys.call()
-  
-  # reconstruct data.frame having coerced Sample and Position to factors
-  data <- data.frame(Sample, Position, AltProp, ylog, xnqlogis)
   
   # Remove the rows of data.frame with NAs 
   goodDat <- subset(data,complete.cases(data))
@@ -128,9 +144,23 @@ rainbowPlot <- function(data,
 
   SEs5 <- summary(lmod5)$coefficients[,2]
   
+  # Get intercepts and standard errors
+  estIntlog <- max(intercepts5)
+  estIntSE <- SEs5[which(intercepts5 == max(intercepts5))][1] # S.E. in log space
+  
+  # Convert estimate and CI to real values
+  intercepts <- plogis(c(estIntlog, 
+                         estIntlog - (1.96 * estIntSE),
+                         estIntlog + (1.96 * estIntSE))
+  )
+  names(intercepts) <- c("intercept.est",
+                         "intercept.est.lo",
+                         "intercept.est.up"
+  )             
   
 
-  # rank intercepts (ranking is used to select SNPs colour on the plot & associated lines)
+  # rank intercepts (ranking is used to select SNPs colours
+  # on the plot & associated lines)
   iranks <- rank(intercepts5, ties.method = "random")
   # create a data.frame associating the name of the SNP with its rank
   rankDF <- data.frame(Position=substr(names(iranks), 9, 20), rank=iranks)
@@ -140,17 +170,20 @@ rainbowPlot <- function(data,
   # Put the raw data points for selected SNPs onto the rainbow plot  
   with(goodDat,{
     maxx <- max(c(10, xnqlogis))
-    miny <- min(c(-10,max(intercepts5)))
-    plot(ylog~xnqlogis, col=rainbow(max(rank)*1.4)[rank], 
+    miny <- min(c(-10, max(intercepts5)))
+    plot(ylog~xnqlogis, col = rainbow(max(rank)*1.4)[rank], 
          pch=1, xlim=c(0,maxx), ylim=c(miny,0),
          xlab="(Un-mapped data / mapped)",
          ylab="Allele frequency",
-         main=main,
+         main=title,
          xaxt = 'n',
-         yaxt = 'n'
-    )
+         yaxt = 'n')
+    }
+  ) # with goodDat
+  
 
-    # add the axes 
+  # add the axes 
+  
     axis(1, at = log(2^(0:7*2)), labels = 2^(0:7*2))
     abline(v = log(2^(0:7*2)), col = "grey", lty=3)
     ll <- expression("1", "10"^-1, "10"^-2, "10"^-3, "10"^-4, "10"^-5, "10"^-6)
@@ -159,27 +192,18 @@ rainbowPlot <- function(data,
     
     # Add key lines
     abline(h=max(intercepts5))
-    abline(v=max(xnqlogis))
+    abline(v=max(goodDat$xnqlogis))
     abline(max(intercepts5), 1,  lty=2)
     
-    # Get intercepts and standard errors
-    estIntlog <- max(intercepts5)
-    estIntSE <- SEs5[which(intercepts5 == max(intercepts5))][1] # S.E. in log space
-    
-    # Convert CI to real values
-    estInt <- plogis(unname(c(intEst=estIntlog,
-                    intLo=estIntlog - (1.96 * estIntSE),
-                    intUp=estIntlog + (1.96 * estIntSE)
-                    ))
-                  )
+
     
     # Add annotation to the plot
     estDep <- plogis(-max(goodDat$xnqlogis))
     text(c(2, 7), c(0,0), c(
-      paste0("intercept est: ", round(estInt[1]*100, digits = 3), "%\n",
-             "(", round(estInt[2]*100, digits = 3), "%-",
-             round(estInt[3]*100, digits = 3), "%)"),
-      paste0("mapping depth est: ", round(estDep*100, digits = 3), "%")
+      paste0("Intercept est: ", signif(intercepts[1]*100, 2), "%\n",
+             "(", signif(intercepts[2]*100, 2), "%-",
+             signif(intercepts[3]*100, 2), "%)"),
+      paste0("Mapping depth est: ", signif(estDep*100, 2), "%")
     )
 
     )
@@ -189,16 +213,16 @@ rainbowPlot <- function(data,
       abline(intercepts5[x], 1, col = rainbow(max(iranks)*1.4, alpha = 0.2)[iranks][x])
     })
 
-  })
+  
   numgoodloci <- length(goodLoci)
   
   if (printout) {
     cat('Intercept based on ', numgoodloci, 'SNP loci \n')
-    cat('Estimate: ', signif(estInt[1],3), '\n')
+    cat('Estimate: ', signif(intercepts[1],3), '\n')
     cat('Confindence Interval: ',
-                signif(estInt[2],3),
+                signif(intercepts[2],3),
                 '-',
-                signif(estInt[3],3),
+                signif(intercepts[3],3),
                 '\n'
                 )
     cat('Mapping depth estimate: ',signif(estDep,3), '\n')
@@ -206,9 +230,7 @@ rainbowPlot <- function(data,
   }
   
   # Return the estimated values as an (initially) invisible object for further use
-  invisible(list(intercepts = c(intercept.est=estInt[1],
-                             intercept.est.lo=estInt[2],
-                             intercept.est.up=estInt[3]),
+  invisible(list(intercepts = intercepts,
               depth.est = estDep,
               num.loci = numgoodloci,
               func.params = funcCall)
@@ -243,9 +265,9 @@ parrotDF <- read.table("parrot.csv", stringsAsFactors = F)
 # hopperDF <- read.table("data/grasshopper/transformedData.csv", stringsAsFactors = F)
 
 
-rainbowPlot(humanDF, seed = 12345, main="Human")
+rainbowPlot(humanDF, seed = 12345, title = "Human")
 
-rainbowPlot(hopperDF, seed = 12345, main="Grasshopper")
+rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
 
-rainbowPlot(parrotDF, seed = 12345, main="Parrot")
+rainbowPlot(parrotDF, seed = 12345, title = "Parrot")
 
