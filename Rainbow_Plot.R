@@ -138,8 +138,6 @@ rainbowPlot <- function(data,
   goodDat <- merge(goodDat, rankDF, by="Position")
   
   # Put the raw data points for selected SNPs onto the rainbow plot  
-  print(names(goodDat))
-  
   maxx <- max(c(10, goodDat$xnqlogis))
   miny <- min(c(-10,max(intercepts5)))
   plot(ylog~xnqlogis, col=rainbow(max(rank)*1.4)[rank], 
