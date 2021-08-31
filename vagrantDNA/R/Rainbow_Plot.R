@@ -28,7 +28,7 @@ library(lme4)
 #'   where m is the number of reads mapping to the exogenous genome and
 #'   N is the remaining reads.}
 #'   }
-#' @param nloci The number of loci to be selected for the analysis. Default, 400.}
+#' @param nloci The number of loci to be selected for the analysis. Default, 400.
 #' @param minWt The minimum average allele frequency of SNPs to be included in the analysis.
 #' Default, 0.01.
 #' @param maxFreq The maximum allele frequency of an individual observation to be included
@@ -41,15 +41,16 @@ library(lme4)
 #' @param seed Random number seed.
 #' @param title User-supplied title for the rainbow plot.
 #' @param printout If printout is TRUE, the function prints the estimates. Default, TRUE.
-#' @return {An invisible list  \describe{
-#'   \item{intercepts}{A vector giving the intercept estimate,
-#'   the lower and upper 95% confidence interval bounds.m}
-#'   \item{depth.est}{A crude upper limit;
-#'   the minimum (over samples) proportion of reads mapping to the exogenous genome.}
-#'   \item{num.loci}{The number of loci remaining after filtering, used
-#'   to obtain the intercept estimates.}
-#'   \item{func.params}{A record of the function call.}
-#' }}
+#' @return An invisible list with the following elements.
+#' \describe{ 
+#'  \item{$intercepts}{A vector giving the intercept estimate, 
+#'  the lower and upper 95\% confidence interval bounds.}
+#'  \item{$depth.est}{A crude upper limit; the minimum over samples 
+#'  of the proportion of reads mapping to the exogenous genome.}
+#'  \item{$num.loci}{The number of loci remaining after filtering,
+#'  used to obtain the intercept estimates.}
+#'  \item{$func.params}{A record of the function call}
+#' }
 #' @export
 #'
 #' @examples
@@ -65,8 +66,11 @@ rainbowPlot <- function(data,
                       title = "",
                       printout = TRUE
                       ){
+  # force Position and Sample to become factors
   data$Position <- factor(data$Position)
   data$Sample <- factor(data$Sample)
+  
+  # check the dataframe has appropriate columns
   if( any( c( !is.vector(data$AltProp),
               !is.factor(data$Position),
               !is.vector(data$xnqlogis),
@@ -77,18 +81,18 @@ rainbowPlot <- function(data,
       ) stop("Supply a dataframe containing a factors Position & Sample (or vectors which can be coerced to a factor), \n
               \t plus vectors AltProp, ylog & xnqlogis")
 
+  # check lme4 is installed
   if( !require(lme4)
       ) stop("Install package lme4 before running this function")
 
   # Save the function call
   funcCall <- sys.call()
 
-  # Remove the rows of data.frame with NAs
+  # Remove the rows of data with NAs
   goodDat <- subset(data,complete.cases(data))
 
   # Remove abnormally high values
   goodDat <- subset(goodDat, AltProp < maxFreq)
-
 
   # Find how many individuals each SNP has been scored in
   tt <- table(goodDat$Position)
@@ -97,7 +101,6 @@ rainbowPlot <- function(data,
 
   # Exclude loci found in too few samples
   goodDat <- subset(goodDat, Position %in% goodNames)
-
 
   # set random number seed if requested (ie. if seed is specified in the function call)
   if(hasArg(seed)) set.seed(seed)
@@ -128,7 +131,7 @@ rainbowPlot <- function(data,
   goodLoci <- loci[-rogueSNPs]
 
   # remove the rogue loci from the data.frame
-  goodDat <- subset(goodDat,Position %in% goodLoci)
+  goodDat <- subset(goodDat, Position %in% goodLoci)
 
 
 

@@ -31,6 +31,8 @@ rainbowPlot(
   N is the remaining reads.}
   }}
 
+\item{nloci}{The number of loci to be selected for the analysis. Default, 400.}
+
 \item{minWt}{The minimum average allele frequency of SNPs to be included in the analysis.
 Default, 0.01.}
 
@@ -51,7 +53,16 @@ are discarded. Default, TRUE.}
 \item{printout}{If printout is TRUE, the function prints the estimates. Default, TRUE.}
 }
 \value{
-
+An invisible list with the following elements.
+\describe{ 
+ \item{$intercepts}{A vector giving the intercept estimate, 
+ the lower and upper 95\% confidence interval bounds.}
+ \item{$depth.est}{A crude upper limit; the minimum over samples 
+ of the proportion of reads mapping to the exogenous genome.}
+ \item{$num.loci}{The number of loci remaining after filtering,
+ used to obtain the intercept estimates.}
+ \item{func.params}{A record of the function call}
+}
 }
 \description{
 Generate a plot to estimate the proportion of the nuclear genome
