@@ -104,7 +104,7 @@ rainbowPlot <- function(data,
   # set random number seed if requested (ie. if seed is specified in the function call)
   if(hasArg(seed)) set.seed(seed)
  
-  # Find the average allele frequency at each site
+  # Find the average allele frequency at each Position
   wweights <- tapply(goodDat$AltProp, factor(goodDat$Position), mean)
   # exclude loci with average frequency less than minWt
   wweights[wweights < minWt] <- 0
