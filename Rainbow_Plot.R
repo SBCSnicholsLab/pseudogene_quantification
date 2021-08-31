@@ -11,8 +11,8 @@ library(lme4)
 #' Rainbow Plot
 #' Generate a plot to estimate the proportion of the nuclear genome
 #' made up of a particular vagrant sequence. The function produces the plots
-#' intercept estimate, and mapping depth estimate described by
-#' Becher & Nichols (2021) citation
+#' intercept estimate, and mapping depth estimate as described by
+#' Becher & Nichols (2021) citation.
 #' 
 #' @param data 
 #' @param AltProp 
