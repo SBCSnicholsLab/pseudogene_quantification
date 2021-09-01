@@ -58,10 +58,11 @@ An invisible list with the following elements.
  \item{$intercepts}{A vector giving the intercept estimate, 
  the lower and upper 95\% confidence interval bounds.}
  \item{$depth.est}{A crude upper limit; the minimum over samples 
- of the proportion of reads mapping to the exogenous genome.}
+ of the proportion of reads mapping to the exogenous genome. 
+ Some part (or all) of the CI would be expected to be below this value.}
  \item{$num.loci}{The number of loci remaining after filtering,
- used to obtain the intercept estimates.}
- \item{func.params}{A record of the function call}
+ which were used to obtain the intercept estimates.}
+ \item{$func.params}{A record of the function call}
 }
 }
 \description{
@@ -71,6 +72,16 @@ intercept estimate, and mapping depth estimate described by
 Becher & Nichols (2021) citation.
 }
 \examples{
-
+## Pull down data from github
+download.file("https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/main/data/grasshopper/transformedData.csv",
+             destfile = "hopper.csv")
+hopperDF <- read.table("hopper.csv")
+##
+## plot and printout (by default).
+rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
+##
+## plot without printing the results and store results in res1.
+res1 <- rainbowPlot(hopperDF, seed = 12345, printout = False, title = "Grasshopper")
+print(res1)
 
 }
