@@ -1,12 +1,12 @@
 Package: vagrantDNA
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Estimating the proportion of vagrant DNA in a genome
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Richard Nichols and Hannes Becher
+Maintainer: The package maintainer <r.a.nichols@qmul.ac.uk>
+Description: The package two functiions rainbowPlot and *** which estimate of the proportion of DNA 
+from a particular vagrant genome in another genome from low coverage data (see Becher and Nichols 2022)
+License: GNU GENERAL PUBLIC LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
