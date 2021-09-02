@@ -23,7 +23,8 @@
 #'   in population B.}
 #'   }
 #'
-#' @return nothing
+#' @return An (invisible) list of Ascores and Bscores corresponding to the
+#' estimates per locus using A or B as the focal population.
 #'
 #' @examples
 #' ## Download data from GitHub
@@ -78,18 +79,21 @@ divEst <- function(dat){
   abline(v = mean(Ascores), col='Orange')
   abline(h = mean(Bscores), col='Orange')
 
-  noquote(paste("Mean of A Scores: ",
+  print(noquote(paste("Mean of A Scores: ",
                 signif(mean(Ascores), 3),
                 " (SE ",
                 signif(sqrt(var(Ascores)/nSites),2),
                 ")"
-  ))
+  )))
 
-  noquote(paste("Mean of B Scores: ",
+  print(noquote(paste("Mean of B Scores: ",
                 signif(mean(Bscores), 3),
                 " (SE ",
                 signif(sqrt(var(Bscores)/nSites),2),
                 ")"
+  )))
+  invisible(list(
+    Ascores=Ascores,
+    Bscores=Bscores
   ))
-
 }
