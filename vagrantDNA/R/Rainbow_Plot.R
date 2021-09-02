@@ -50,6 +50,9 @@ library(lme4)
 #'  Some part (or all) of the CI would be expected to be below this value.}
 #'  \item{$num.loci}{The number of loci remaining after filtering,
 #'  which were used to obtain the intercept estimates.}
+#'  \item{$lmer.model}{An lmer object which contains the details of the mixed effects model fitted to identify
+#'  the largest intercept and its standard error. 
+#'  In the case of unusual or problematic results it may be useful to inspect the residuals, see examples.}
 #'  \item{$func.params}{A record of the function call}
 #' }
 #'
@@ -64,8 +67,10 @@ library(lme4)
 #' ##
 #' ## plot without printing the results and store results in res1.
 #' res1 <- rainbowPlot(hopperDF, seed = 12345, printout = False, title = "Grasshopper")
-#' print(res1)
-#' 
+#' ## print just the stored estimates
+#' print(res1[1:2])
+#' ## Inspect the residuals of the lmer model
+#' plot(res1$lmer.model)
 #' @export
 rainbowPlot <- function(data,
                       nloci = 400,
@@ -245,6 +250,7 @@ rainbowPlot <- function(data,
   invisible(list(intercepts = intercepts,
               depth.est = estDep,
               num.loci = numgoodloci,
+              lmer.model = lmod5,
               func.params = funcCall)
          )
 
