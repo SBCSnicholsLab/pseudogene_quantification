@@ -42,32 +42,30 @@ library(lme4)
 #' @param title User-supplied title for the rainbow plot.
 #' @param printout If printout is TRUE, the function prints the estimates. Default, TRUE.
 #' @return An invisible list with the following elements.
-#' \describe{ 
-#'  \item{$intercepts}{A vector giving the intercept estimate, 
+#' \describe{
+#'  \item{$intercepts}{A vector giving the intercept estimate,
 #'  the lower and upper 95\% confidence interval bounds.}
-#'  \item{$depth.est}{A crude upper limit; the minimum over samples 
-#'  of the proportion of reads mapping to the exogenous genome. 
+#'  \item{$depth.est}{A crude upper limit; the minimum over samples
+#'  of the proportion of reads mapping to the exogenous genome.
 #'  Some part (or all) of the CI would be expected to be below this value.}
 #'  \item{$num.loci}{The number of loci remaining after filtering,
 #'  which were used to obtain the intercept estimates.}
 #'  \item{$lmer.model}{An lmer object which contains the details of the mixed effects model fitted to identify
-#'  the largest intercept and its standard error. 
+#'  the largest intercept and its standard error.
 #'  In the case of unusual or problematic results it may be useful to inspect the residuals, see examples.}
 #'  \item{$func.params}{A record of the function call}
 #' }
 #'
 #' @examples
-#' ## Pull down data from github
-#' download.file("https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/main/data/grasshopper/transformedData.csv",
-#'              destfile = "hopper.csv")
-#' hopperDF <- read.table("hopper.csv")
+#' ## Access one of the package's example data-sets (hopperDF, parrotDF or humanDF)
+#' data(hopperDF)
 #' ##
 #' ## plot and printout (by default).
 #' rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
 #' ##
 #' ## plot without printing the results and store results in res1.
 #' res1 <- rainbowPlot(hopperDF, seed = 12345, printout = False, title = "Grasshopper")
-#' ## print just the stored estimates
+#' ## print just the stored estimates (the first two elements of the list)
 #' print(res1[1:2])
 #' ## Inspect the residuals of the lmer model
 #' plot(res1$lmer.model)
@@ -85,7 +83,7 @@ rainbowPlot <- function(data,
   # force Position and Sample to become factors
   data$Position <- factor(data$Position)
   data$Sample <- factor(data$Sample)
-  
+
   # check the dataframe has appropriate columns
   if( any( c( !is.vector(data$AltProp),
               !is.factor(data$Position),
@@ -257,21 +255,7 @@ rainbowPlot <- function(data,
 }
 
 
-# Get data online ####
-# human
-#download.file("https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/main/data/human/transformedData.csv",
-#              destfile = "human.csv")
-#humanDF <- read.table("human.csv", stringsAsFactors = F)
 
-#hopper
-#download.file("https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/main/data/grasshopper/transformedData.csv",
-#              destfile = "hopper.csv")
-#hopperDF <- read.table("hopper.csv", stringsAsFactors = F)
-
-#parrot
-#download.file("https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/main/data/parrot/transformedData.csv",
-#              destfile = "parrot.csv")
-#parrotDF <- read.table("parrot.csv", stringsAsFactors = F)
 
 # Alternatively, read in data from repo ####
 # setwd("~/git_repos/pseudogene_quantification/")

@@ -54,16 +54,16 @@ are discarded. Default, TRUE.}
 }
 \value{
 An invisible list with the following elements.
-\describe{ 
- \item{$intercepts}{A vector giving the intercept estimate, 
+\describe{
+ \item{$intercepts}{A vector giving the intercept estimate,
  the lower and upper 95\% confidence interval bounds.}
- \item{$depth.est}{A crude upper limit; the minimum over samples 
- of the proportion of reads mapping to the exogenous genome. 
+ \item{$depth.est}{A crude upper limit; the minimum over samples
+ of the proportion of reads mapping to the exogenous genome.
  Some part (or all) of the CI would be expected to be below this value.}
  \item{$num.loci}{The number of loci remaining after filtering,
  which were used to obtain the intercept estimates.}
- \item{$lmer.model}{An lmer object which contains the details of the mixed effects model used to estimate
- the largest intercept and its standard error. 
+ \item{$lmer.model}{An lmer object which contains the details of the mixed effects model fitted to identify
+ the largest intercept and its standard error.
  In the case of unusual or problematic results it may be useful to inspect the residuals, see examples.}
  \item{$func.params}{A record of the function call}
 }
@@ -75,17 +75,15 @@ intercept estimate, and mapping depth estimate described by
 Becher & Nichols (2021) citation.
 }
 \examples{
-## Pull down data from github
-download.file("https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/main/data/grasshopper/transformedData.csv",
-             destfile = "hopper.csv")
-hopperDF <- read.table("hopper.csv")
+## Access one of the package's example data-sets (hopperDF, parrotDF or humanDF)
+data(hopperDF)
 ##
 ## plot and printout (by default).
 rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
 ##
 ## plot without printing the results and store results in res1.
 res1 <- rainbowPlot(hopperDF, seed = 12345, printout = False, title = "Grasshopper")
-## print just the stored estimates
+## print just the stored estimates (the first two elements of the list)
 print(res1[1:2])
 ## Inspect the residuals of the lmer model
 plot(res1$lmer.model)
