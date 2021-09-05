@@ -1,0 +1,11 @@
+* installing *source* package ‘vagrantDNA’ ...
+** using staged installation
+** R
+** data
+*** moving datasets to lazyload DB
+** byte-compile and prepare package for lazy loading
+Error : package ‘Matrix’ required by ‘lme4’ could not be found
+Error: unable to load R code in package ‘vagrantDNA’
+Execution halted
+ERROR: lazy loading failed for package ‘vagrantDNA’
+* removing ‘/Users/ranichols/Documents/GitHub/pseudogene_quantification/vagrantDNA.Rcheck/vagrantDNA’
