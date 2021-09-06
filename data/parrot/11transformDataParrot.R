@@ -251,37 +251,40 @@ majAlleles <- data.frame(majAlleles, pos = rownames(majAlleles))
 hist(majAlleles$A - majAlleles$B)
 
 allCountsFixedN <- merge(allCountsFixedN, majAlleles, by = "pos")
-# update the major allele matrix
-oneTrue <- function(x){
-  a = c(F, F, F, F)
-  a[x] <- T
-  a
-}
-# oneTrue(2)
-# This is only 6k rows, so we can use sapply.
-majMat <- as.matrix(t(sapply(1:nrow(allCountsFixedN), function(x) {
-  c(oneTrue(allCountsFixedN[x, ]$A),
-    oneTrue(allCountsFixedN[x, ]$B)
-  )})))
-# only one major allele now?
-all(rowSums(majMat) == 2)
-# yes, there are two because there's one major allele in A and one in B
-colnames(majMat) <- c("A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4")
-dim(majMat)
-dim(allCountsFixedN)
 head(allCountsFixedN)
-allCountsFixedN <- data.frame(allCountsFixedN[, -c(7:10)], majMat)
-head(allCountsFixedN)
-allCountsFixedN$allDep <- rowSums(allCountsFixedN[,3:6])
-head(allCountsFixedN)
-# get numbers for each locus and allele aMaj and bAlt are sometimes indentical,
-# but only if there were only two alleles.
-aMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,12:15])
-bMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,16:19])
-aAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,12:15])
-bAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,16:19])
-allCountsFixedN <- data.frame(allCountsFixedN, aMaj, aAlt, bMaj, bAlt)
-head(allCountsFixedN)
+allCountsFixedN <- allCountsFixedN[,-c(7:10)]
+# write.table(allCountsFixedN, "parrotFixed.csv")
+# # update the major allele matrix
+# oneTrue <- function(x){
+#   a = c(F, F, F, F)
+#   a[x] <- T
+#   a
+# }
+# # oneTrue(2)
+# # This is only 6k rows, so we can use sapply.
+# majMat <- as.matrix(t(sapply(1:nrow(allCountsFixedN), function(x) {
+#   c(oneTrue(allCountsFixedN[x, ]$A),
+#     oneTrue(allCountsFixedN[x, ]$B)
+#   )})))
+# # only one major allele now?
+# all(rowSums(majMat) == 2)
+# # yes, there are two because there's one major allele in A and one in B
+# colnames(majMat) <- c("A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4")
+# dim(majMat)
+# dim(allCountsFixedN)
+# head(allCountsFixedN)
+# allCountsFixedN <- data.frame(allCountsFixedN[, -c(7:10)], majMat)
+# head(allCountsFixedN)
+# allCountsFixedN$allDep <- rowSums(allCountsFixedN[,3:6])
+# head(allCountsFixedN)
+# # get numbers for each locus and allele aMaj and bAlt are sometimes indentical,
+# # but only if there were only two alleles.
+# aMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,12:15])
+# bMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,16:19])
+# aAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,12:15])
+# bAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,16:19])
+# allCountsFixedN <- data.frame(allCountsFixedN, aMaj, aAlt, bMaj, bAlt)
+# head(allCountsFixedN)
 
 
 # Richard's scores ###################################################

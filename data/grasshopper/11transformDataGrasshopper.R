@@ -235,118 +235,106 @@ majAlleles <- data.frame(majAlleles, pos = rownames(majAlleles))
 hist(majAlleles$A - majAlleles$B)
 
 allCountsFixedN <- merge(allCountsFixedN, majAlleles, by = "pos")
-# update the major allele matrix
-oneTrue <- function(x){
-  a = c(F, F, F, F)
-  a[x] <- T
-  a
-}
-# oneTrue(2)
-# This is only 6k rows, so we can use sapply.
-majMat <- as.matrix(t(sapply(1:nrow(allCountsFixedN), function(x) {
-  c(oneTrue(allCountsFixedN[x, ]$A),
-    oneTrue(allCountsFixedN[x, ]$B)
-  )})))
-# only one major allele now?
-all(rowSums(majMat) == 2)
-# yes, there are two because there's one major allele in A and one in B
-colnames(majMat) <- c("A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4")
-dim(majMat)
-dim(allCountsFixedN)
-head(allCountsFixedN)
-allCountsFixedN <- data.frame(allCountsFixedN[, -c(7:10)], majMat)
-head(allCountsFixedN)
-allCountsFixedN$allDep <- rowSums(allCountsFixedN[,3:6])
-head(allCountsFixedN)
-# get numbers for each locus and allele aMaj and bAlt are sometimes indentical,
-# but only if there were only two alleles.
-aMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,12:15])
-bMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,16:19])
-aAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,12:15])
-bAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,16:19])
-allCountsFixedN <- data.frame(allCountsFixedN, aMaj, aAlt, bMaj, bAlt)
-head(allCountsFixedN)
+allCountsFixedN <- allCountsFixedN[,-c(7:10)]
+# write.table(allCountsFixedN, "hopperFixed.csv")
+# estimation is now done with the divEst function!
 
-
-
-# Richard's scores ###################################################
-#####################################################################
-
-# extract site names & number
-siteNames <- unique(allCountsFixedN$pos)
-nSites <- length(siteNames)
-Ascores <- Bscores <- rep(0,nSites)
-
-for (i in 1:nSites){# create matrices with counts for the A populations and B populations
-  gmatA <- as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')[,3:6])
-  gmatB <- as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')[,3:6])
-  
-  # create matrixes identifying the non mito alleles in each population 
-  # and the mito allele in the opposite population (where it will be non-mito)
-  # For the A population:
-  notMitoAlleleA <- !as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')[,12:15])
-  AmitoAlleleInB <-  as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')[,12:15])
-  # For the B populations
-  notMitoAlleleB <- !as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')[,16:19]) 
-  BmitoAlleleInA <-  as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')[,16:19])
-  mA <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')$M
-  mB <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')$M
-  nA <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')$N
-  nB <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')$N
-  
-  Ascores[i] <- sum(rowSums(gmatA * notMitoAlleleA) / rowSums(gmatA) * mA) / sum(nA) +
-                sum(rowSums(gmatB * AmitoAlleleInB) / rowSums(gmatB) * mB) / sum(nB)  
-  Bscores[i] <- sum(rowSums(gmatB * notMitoAlleleB) / rowSums(gmatB) * mB) / sum(nB) +
-                sum(rowSums(gmatA * BmitoAlleleInA) / rowSums(gmatA) * mA) / sum(nA)  
-  }
-
-
-plot(Ascores, Bscores)
-abline(0,1)
-abline(coef(lm(Bscores ~ Ascores)), col = "Blue")
-abline(v = mean(Ascores), col='Orange')
-abline(h = mean(Bscores), col='Orange')
-
-noquote(paste("Mean of A Scores: ",
-      signif(mean(Ascores), 3),
-      " (SE ",
-      signif(sqrt(var(Ascores)/nSites),2),
-      ")"
-      ))
-
-noquote(paste("Mean of B Scores: ",
-              signif(mean(Bscores), 3),
-              " (SE ",
-              signif(sqrt(var(Bscores)/nSites),2),
-              ")"
-))
-
-plot(as.numeric(substr(siteNames, 2, 6)), Ascores, type="l",
-     xlab="Position in mitogenome",
-     ylab="Score")
-points(as.numeric(substr(siteNames, 2, 6)), Bscores, col="grey", type="l")
-legend("top", lty=1, col=c("black","grey"), legend=c("Ascores","Bscores"))
-
-plot(Ascores, Bscores)
-lm0 <- lm(Bscores~Ascores)
-lm1 <- lm(Bscores~Ascores, offset = Ascores)
-summary(lm0)
-summary(lm1)
-abline(lm0)
-abline(0, 1, lty = 2)
-
-
-mappingDepths <- data.frame(nMapped, pop=rep("A", length(nMapped)), stringsAsFactors = F)
-mappingDepths$pop[pop0ind]
-mappingDepths$pop[pop1ind] <- "B"
-summary(lm(nMapped ~ pop, data=mappingDepths))
-#plot(lm(nMapped ~ pop, data=mappingDepths))
-
-hist(Ascores, col = "#0000FF40", main = "Grasshopper", xlab="Scores", xlim=c(0, 1/1000))
-abline(v=mean(Ascores), lwd=2)
-abline(v=mean(Ascores) + c(-1, 1) * sqrt(var(Ascores)/nSites), lty=2)
-# intervals overlap
-# hist(Bscores, add = T, col = "#FF000040")
-# abline(v=mean(Bscores), lwd=2)
-# abline(v=mean(Bscores) + c(-1, 1) * sqrt(var(Ascores)/nSites), lty=3)
-# legend("topright", fill=c("#0000FF40","#FF000040"), legend=c("A","B"))
+# allCountsFixedN <- read.table("hopperFixed.csv")
+# 
+# head(allCountsFixedN)
+# 
+# allCountsFixedN$A1 <- allCountsFixedN$A == 1
+# allCountsFixedN$A2 <- allCountsFixedN$A == 2
+# allCountsFixedN$A3 <- allCountsFixedN$A == 3
+# allCountsFixedN$A4 <- allCountsFixedN$A == 4
+# allCountsFixedN$B1 <- allCountsFixedN$B == 1
+# allCountsFixedN$B2 <- allCountsFixedN$B == 2
+# allCountsFixedN$B3 <- allCountsFixedN$B == 3
+# allCountsFixedN$B4 <- allCountsFixedN$B == 4
+# allCountsFixedN$allDep <- rowSums(allCountsFixedN[,3:6])
+# allCountsFixedN$aMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,12:15])
+# allCountsFixedN$aAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,12:15])
+# allCountsFixedN$bMaj <- rowSums(allCountsFixedN[,3:6] * allCountsFixedN[,16:19])
+# allCountsFixedN$bAlt <- rowSums(allCountsFixedN[,3:6] * !allCountsFixedN[,16:19])
+# # Richard's scores ###################################################
+# #####################################################################
+# 
+# # extract site names & number
+# 
+# siteNames <- unique(allCountsFixedN$pos)
+# nSites <- length(siteNames)
+# Ascores <- Bscores <- rep(0,nSites)
+# 
+# for (i in 1:nSites){# create matrices with counts for the A populations and B populations
+#   gmatA <- as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')[,3:6])
+#   gmatB <- as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')[,3:6])
+#   
+#   # create matrices identifying the non mito alleles in each population 
+#   # and the mito allele in the opposite population (where it will be non-mito)
+#   # For the A population:
+#   notMitoAlleleA <- !as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')[,12:15])
+#   AmitoAlleleInB <-  as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')[,12:15])
+#   # For the B populations
+#   notMitoAlleleB <- !as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')[,16:19]) 
+#   BmitoAlleleInA <-  as.matrix(subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')[,16:19])
+#   mA <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')$M
+#   mB <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')$M
+#   nA <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'A')$N
+#   nB <- subset(allCountsFixedN, pos==siteNames[i] & pop == 'B')$N
+#   
+#   Ascores[i] <- sum(rowSums(gmatA * notMitoAlleleA) / rowSums(gmatA) * mA) / sum(nA) +
+#                 sum(rowSums(gmatB * AmitoAlleleInB) / rowSums(gmatB) * mB) / sum(nB)  
+#   Bscores[i] <- sum(rowSums(gmatB * notMitoAlleleB) / rowSums(gmatB) * mB) / sum(nB) +
+#                 sum(rowSums(gmatA * BmitoAlleleInA) / rowSums(gmatA) * mA) / sum(nA)  
+#   }
+# 
+# 
+# plot(Ascores, Bscores)
+# abline(0,1)
+# abline(coef(lm(Bscores ~ Ascores)), col = "Blue")
+# abline(v = mean(Ascores), col='Orange')
+# abline(h = mean(Bscores), col='Orange')
+# 
+# noquote(paste("Mean of A Scores: ",
+#       signif(mean(Ascores), 3),
+#       " (SE ",
+#       signif(sqrt(var(Ascores)/nSites),2),
+#       ")"
+#       ))
+# 
+# noquote(paste("Mean of B Scores: ",
+#               signif(mean(Bscores), 3),
+#               " (SE ",
+#               signif(sqrt(var(Bscores)/nSites),2),
+#               ")"
+# ))
+# 
+# plot(as.numeric(substr(siteNames, 2, 6)), Ascores, type="l",
+#      xlab="Position in mitogenome",
+#      ylab="Score")
+# points(as.numeric(substr(siteNames, 2, 6)), Bscores, col="grey", type="l")
+# legend("top", lty=1, col=c("black","grey"), legend=c("Ascores","Bscores"))
+# 
+# plot(Ascores, Bscores)
+# lm0 <- lm(Bscores~Ascores)
+# lm1 <- lm(Bscores~Ascores, offset = Ascores)
+# summary(lm0)
+# summary(lm1)
+# abline(lm0)
+# abline(0, 1, lty = 2)
+# 
+# 
+# mappingDepths <- data.frame(nMapped, pop=rep("A", length(nMapped)), stringsAsFactors = F)
+# mappingDepths$pop[pop0ind]
+# mappingDepths$pop[pop1ind] <- "B"
+# summary(lm(nMapped ~ pop, data=mappingDepths))
+# #plot(lm(nMapped ~ pop, data=mappingDepths))
+# 
+# hist(Ascores, col = "#0000FF40", main = "Grasshopper", xlab="Scores", xlim=c(0, 1/1000))
+# abline(v=mean(Ascores), lwd=2)
+# abline(v=mean(Ascores) + c(-1, 1) * sqrt(var(Ascores)/nSites), lty=2)
+# # intervals overlap
+# # hist(Bscores, add = T, col = "#FF000040")
+# # abline(v=mean(Bscores), lwd=2)
+# # abline(v=mean(Bscores) + c(-1, 1) * sqrt(var(Ascores)/nSites), lty=3)
+# # legend("topright", fill=c("#0000FF40","#FF000040"), legend=c("A","B"))

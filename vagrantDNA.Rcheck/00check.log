@@ -1,0 +1,144 @@
+* using log directory ‘/Users/ranichols/Documents/GitHub/pseudogene_quantification/vagrantDNA.Rcheck’
+* using R version 4.1.0 (2021-05-18)
+* using platform: x86_64-apple-darwin17.0 (64-bit)
+* using session charset: UTF-8
+* using options ‘--no-manual --as-cran’
+* checking for file ‘vagrantDNA/DESCRIPTION’ ... OK
+* checking extension type ... Package
+* this is package ‘vagrantDNA’ version ‘0.1.0’
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking serialization versions ... OK
+* checking whether package ‘vagrantDNA’ can be installed ... OK
+* checking installed package size ... NOTE
+  installed size is  7.2Mb
+  sub-directories of 1Mb or more:
+    data   7.1Mb
+* checking package directory ... OK
+* checking for future file timestamps ... OK
+* checking DESCRIPTION meta-information ... NOTE
+Malformed Description field: should contain one or more complete sentences.
+Non-standard license specification:
+  GNU GENERAL PUBLIC LICENSE
+Standardizable: FALSE
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... NOTE
+'library' or 'require' call to ‘lme4’ which was already attached by Depends.
+  Please remove these calls from your code.
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+divEst: no visible binding for global variable ‘pos’
+divEst: no visible binding for global variable ‘pop’
+divEst: no visible global function definition for ‘abline’
+divEst: no visible global function definition for ‘coef’
+divEst: no visible global function definition for ‘lm’
+divEst: no visible global function definition for ‘var’
+rainbowPlot: no visible global function definition for ‘complete.cases’
+rainbowPlot: no visible binding for global variable ‘AltProp’
+rainbowPlot: no visible global function definition for ‘hasArg’
+rainbowPlot: no visible global function definition for ‘coef’
+rainbowPlot: no visible global function definition for ‘lm’
+rainbowPlot: no visible global function definition for ‘boxplot.stats’
+rainbowPlot: no visible binding for global variable ‘xnqlogis’
+rainbowPlot: no visible global function definition for ‘plogis’
+rainbowPlot: no visible global function definition for ‘axis’
+rainbowPlot: no visible global function definition for ‘abline’
+rainbowPlot: no visible global function definition for ‘text’
+rainbowPlot : <anonymous>: no visible global function definition for
+  ‘abline’
+rainbowPlot : <anonymous>: no visible global function definition for
+  ‘rainbow’
+Undefined global functions or variables:
+  AltProp abline axis boxplot.stats coef complete.cases hasArg lm
+  plogis pop pos rainbow text var xnqlogis
+Consider adding
+  importFrom("grDevices", "boxplot.stats", "rainbow")
+  importFrom("graphics", "abline", "axis", "text")
+  importFrom("methods", "hasArg")
+  importFrom("stats", "coef", "complete.cases", "lm", "plogis", "var")
+to your NAMESPACE file (and ensure that your DESCRIPTION Imports field
+contains 'methods').
+* checking Rd files ... WARNING
+prepare_Rd: hopperDF.Rd:5-7: Dropping empty section \description
+prepare_Rd: hopperDF.Rd:21-23: Dropping empty section \details
+prepare_Rd: hopperDF.Rd:24-26: Dropping empty section \source
+prepare_Rd: hopperDF.Rd:27-29: Dropping empty section \references
+checkRd: (5) hopperDF.Rd:0-35: Must have a \description
+prepare_Rd: humanDF.Rd:5-7: Dropping empty section \description
+prepare_Rd: humanDF.Rd:21-23: Dropping empty section \details
+prepare_Rd: humanDF.Rd:24-26: Dropping empty section \source
+prepare_Rd: humanDF.Rd:27-29: Dropping empty section \references
+checkRd: (5) humanDF.Rd:0-35: Must have a \description
+prepare_Rd: parrotDF.Rd:5-7: Dropping empty section \description
+prepare_Rd: parrotDF.Rd:21-23: Dropping empty section \details
+prepare_Rd: parrotDF.Rd:24-26: Dropping empty section \source
+prepare_Rd: parrotDF.Rd:27-29: Dropping empty section \references
+checkRd: (5) parrotDF.Rd:0-35: Must have a \description
+* checking Rd metadata ... OK
+* checking Rd line widths ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of ‘data’ directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking LazyData ... WARNING
+  LazyData DB of 6.1 MB without LazyDataCompression set
+  See §1.1.6 of 'Writing R Extensions'
+* checking data for ASCII and uncompressed saves ... OK
+* checking examples ... ERROR
+Running examples in ‘vagrantDNA-Ex.R’ failed
+The error most likely occurred in:
+
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: rainbowPlot
+> ### Title: Rainbow Plot.
+> ### Aliases: rainbowPlot
+> 
+> ### ** Examples
+> 
+> ## Access one of the package's example data-sets (hopperDF, parrotDF or humanDF)
+> data(hopperDF)
+> ##
+> ## plot and printout (by default).
+> rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
+Intercept based on  200 SNP loci 
+Estimate:  0.000558 
+Confindence Interval:  0.000484 - 0.000644 
+Mapping depth estimate:  0.000769 
+Function call 
+ rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")> ##
+> ## plot without printing the results and store results in res1.
+> res1 <- rainbowPlot(hopperDF, seed = 12345, printout = False, title = "Grasshopper")
+Error in rainbowPlot(hopperDF, seed = 12345, printout = False, title = "Grasshopper") : 
+  object 'False' not found
+Execution halted
+* checking for unstated dependencies in ‘tests’ ... WARNING
+'library' or 'require' call not declared from: ‘checkmate’
+* checking tests ... OK
+  Running ‘testthat.R’
+* checking for non-standard things in the check directory ... OK
+* checking for detritus in the temp directory ... OK
+* DONE
+Status: 1 ERROR, 3 WARNINGs, 4 NOTEs

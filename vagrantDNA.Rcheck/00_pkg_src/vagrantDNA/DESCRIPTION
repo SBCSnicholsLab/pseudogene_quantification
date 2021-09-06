@@ -1,0 +1,16 @@
+Package: vagrantDNA
+Type: Package
+Title: Estimating the proportion of vagrant DNA in a genome
+Version: 0.1.0
+Author: Richard Nichols and Hannes Becher
+Maintainer: The package maintainer <r.a.nichols@qmul.ac.uk>
+Description: The package two functions rainbowPlot and *** which estimate of the proportion of DNA from a particular vagrant genome in another genome from low coverage data (see Becher and Nichols 2022)
+License: GNU GENERAL PUBLIC LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Depends: R (>= 2.10), lme4
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
+NeedsCompilation: no
+Packaged: 2021-09-06 11:04:48 UTC; ranichols

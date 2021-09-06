@@ -1,0 +1,5 @@
+name	user	system	elapsed
+divEst	0.001	0.000	0.001	
+hopperDF	0.015	0.005	0.022	
+humanDF	0.002	0.003	0.005	
+parrotDF	0.002	0.003	0.004	
