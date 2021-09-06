@@ -13,6 +13,12 @@
 #' Becher & Nichols (2021) citation.
 #'
 #' @importFrom lme4 lmer
+#' @importFrom grDevices boxplot.stats rainbow
+#' @importFrom graphics abline axis text
+#' @importFrom methods hasArg
+#' @importFrom stats coef complete.cases lm plogis var
+#' @importFrom utils install.packages
+#'
 #' @param data A data.frame with at least the following columns.
 #' \describe{
 #'   \item{AltProp}{A numberic vector giving the proportion (of reads mapping to the exogenous genome) that carry the non-standard alleles thought to be in the vagrant copies}
@@ -77,7 +83,7 @@ rainbowPlot <- function(data,
                       title = "",
                       printout = TRUE
                       ){
-  requireNamespace()
+  if (!requireNamespace("lme4", quietly = TRUE)) install.packages("lme4")
   # force Position and Sample to become factors
   data$Position <- factor(data$Position)
   data$Sample <- factor(data$Sample)
@@ -92,10 +98,6 @@ rainbowPlot <- function(data,
            )
       ) stop("Supply a dataframe containing a factors Position & Sample (or vectors which can be coerced to a factor), \n
               \t plus vectors AltProp, ylog & xnqlogis")
-
-  # check lme4 is installed
-  if( !require(lme4)
-      ) stop("Install package lme4 before running this function")
 
   # Save the function call
   funcCall <- sys.call()

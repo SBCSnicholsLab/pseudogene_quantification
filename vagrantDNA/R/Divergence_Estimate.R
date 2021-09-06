@@ -30,7 +30,6 @@
 #' ## Download data from GitHub
 #'
 divEst <- function(dat){
-  requireNamespace()
   siteNames <- unique(dat$pos)
   nSites <- length(siteNames)
   Ascores <- Bscores <- rep(0,nSites)

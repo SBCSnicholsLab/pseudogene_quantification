@@ -51,8 +51,7 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 
 ### ** Examples
 
-data(hopperDF)
-## maybe str(hopperDF) ; plot(hopperDF) ...
+data(hopperDF) ; str(hopperDF) ; plot(hopperDF)
 
 
 
@@ -72,8 +71,7 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 
 ### ** Examples
 
-data(humanDF)
-## maybe str(humanDF) ; plot(humanDF) ...
+data(humanDF) ; str(humanDF) ; plot(humanDF)
 
 
 
@@ -93,8 +91,7 @@ base::assign(".ptime", proc.time(), pos = "CheckExEnv")
 
 ### ** Examples
 
-data(parrotDF)
-## maybe str(parrotDF) ; plot(parrotDF) ...
+data(parrotDF); str(parrotDF); plot(parrotDF)
 
 
 

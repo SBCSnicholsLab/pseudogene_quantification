@@ -70,8 +70,15 @@ Type 'q()' to quit R.
 > 
 > ### ** Examples
 > 
-> data(hopperDF)
-> ## maybe str(hopperDF) ; plot(hopperDF) ...
+> data(hopperDF) ; str(hopperDF) ; plot(hopperDF)
+'data.frame':	401360 obs. of  7 variables:
+ $ Sample     : chr  "10T" "10T" "10T" "10T" ...
+ $ Position   : chr  "S00011" "S00014" "S00016" "S00020" ...
+ $ AltProp    : num  0.0222 0.0435 0.0208 0.0196 0.3621 ...
+ $ mappingrate: num  0.000899 0.000899 0.000899 0.000899 0.000899 ...
+ $ ylog       : num  -3.81 -3.14 -3.87 -3.93 -1.02 ...
+ $ xnqlogis   : num  7.01 7.01 7.01 7.01 7.01 ...
+ $ xlog       : num  -7.01 -7.01 -7.01 -7.01 -7.01 ...
 > 
 > 
 > 
@@ -91,8 +98,15 @@ Type 'q()' to quit R.
 > 
 > ### ** Examples
 > 
-> data(humanDF)
-> ## maybe str(humanDF) ; plot(humanDF) ...
+> data(humanDF) ; str(humanDF) ; plot(humanDF)
+'data.frame':	17142 obs. of  7 variables:
+ $ Sample     : chr  "ERR239427" "ERR239427" "ERR239427" "ERR239427" ...
+ $ Position   : chr  "S00064" "S00073" "S00146" "S00152" ...
+ $ AltProp    : num  0.0278 0.973 1 1 1 ...
+ $ mappingrate: num  0.00276 0.00276 0.00276 0.00276 0.00276 ...
+ $ ylog       : num  -3.5835 -0.0274 0 0 0 ...
+ $ xnqlogis   : num  5.89 5.89 5.89 5.89 5.89 ...
+ $ xlog       : num  -5.89 -5.89 -5.89 -5.89 -5.89 ...
 > 
 > 
 > 
@@ -112,8 +126,15 @@ Type 'q()' to quit R.
 > 
 > ### ** Examples
 > 
-> data(parrotDF)
-> ## maybe str(parrotDF) ; plot(parrotDF) ...
+> data(parrotDF); str(parrotDF); plot(parrotDF)
+'data.frame':	171248 obs. of  7 variables:
+ $ Sample     : chr  "SRR6214420" "SRR6214420" "SRR6214420" "SRR6214420" ...
+ $ Position   : chr  "S00055" "S00056" "S00059" "S00062" ...
+ $ AltProp    : num  0 0 0 0.00725 0 ...
+ $ mappingrate: num  0.00456 0.00456 0.00456 0.00456 0.00456 ...
+ $ ylog       : num  NA NA NA -4.93 NA ...
+ $ xnqlogis   : num  5.39 5.39 5.39 5.39 5.39 ...
+ $ xlog       : num  -5.39 -5.39 -5.39 -5.39 -5.39 ...
 > 
 > 
 > 
@@ -137,7 +158,42 @@ Type 'q()' to quit R.
 > ##
 > ## plot and printout (by default).
 > rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
-Error in requireNamespace() : 
-  argument "package" is missing, with no default
-Calls: rainbowPlot -> requireNamespace
-Execution halted
+Intercept based on  200 SNP loci 
+Estimate:  0.000558 
+Confindence Interval:  0.000484 - 0.000644 
+Mapping depth estimate:  0.000769 
+Function call 
+ rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")> ##
+> ## plot without printing the results and store results in res1.
+> res1 <- rainbowPlot(hopperDF, seed = 12345, printout = FALSE, title = "Grasshopper")
+> ## print just the stored estimates (the first two elements of the list)
+> print(res1[1:2])
+$intercepts
+   intercept.est intercept.est.lo intercept.est.up 
+    0.0005578310     0.0004835209     0.0006435542 
+
+$depth.est
+[1] 0.0007694678
+
+> ## Inspect the residuals of the lmer model
+> plot(res1$lmer.model)
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("rainbowPlot", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> ### * <FOOTER>
+> ###
+> cleanEx()
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  382.46 40.185 516.563 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

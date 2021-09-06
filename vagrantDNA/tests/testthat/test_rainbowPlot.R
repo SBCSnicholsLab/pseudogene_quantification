@@ -1,4 +1,4 @@
-library(checkmate)
+library("checkmate")
 
 # creating a test data.frame
 Sample <- rep(paste('sample', 4^(1:6), sep = ''), each = 4) # Sample names: six samples scored at four loci
