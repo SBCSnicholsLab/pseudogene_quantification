@@ -9,9 +9,10 @@ License: GNU GENERAL PUBLIC LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-Depends: R (>= 2.10), lme4
+Depends: R (>= 2.10), graphics, stats
+Imports: lme4
 Suggests: testthat (>= 3.0.0)
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2021-09-06 11:04:48 UTC; ranichols
-Built: R 4.1.0; ; 2021-09-06 11:04:59 UTC; unix
+Packaged: 2021-09-06 14:07:15 UTC; ranichols
+Built: R 4.1.0; ; 2021-09-06 14:07:21 UTC; unix

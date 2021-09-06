@@ -27,7 +27,7 @@ testDF <- data.frame(
   AltProp = AltProp
   )
 
-# testDF gives a pefect fit with maximum intercept 9.0009e-05 and SE ~ 0
+# testDF gives a good fit with maximum intercept 9.00009e-05 and SE ~ 0
 testlist <- rainbowPlot(testDF, nloci = 4, minSamples = 6)
 test_that("The function returns appropriate objects", {
   expect_list(testlist, types = c('vector','numeric','integerish','lmerMod','call'))

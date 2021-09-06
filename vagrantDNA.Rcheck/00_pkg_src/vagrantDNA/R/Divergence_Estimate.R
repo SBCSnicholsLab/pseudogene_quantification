@@ -4,7 +4,7 @@
 #'
 #' @param dat A data.frame with the following eleven columns in this order.
 #' \describe{
-#'   \item{pos}{A numeric vector giving the position of teh variant site.}
+#'   \item{pos}{A numeric vector giving the position of the variant site.}
 #'   \item{sample}{A factor (or structure that can be coerced to a factor),
 #'   giving a unique name for each individual genotyped.}
 #'   \item{g1}{A numeric vector giving the allel count of allele 1.}
@@ -30,7 +30,7 @@
 #' ## Download data from GitHub
 #'
 divEst <- function(dat){
-
+  requireNamespace()
   siteNames <- unique(dat$pos)
   nSites <- length(siteNames)
   Ascores <- Bscores <- rep(0,nSites)

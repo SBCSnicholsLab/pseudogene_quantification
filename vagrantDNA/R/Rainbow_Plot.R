@@ -61,7 +61,7 @@
 #' rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
 #' ##
 #' ## plot without printing the results and store results in res1.
-#' res1 <- rainbowPlot(hopperDF, seed = 12345, printout = False, title = "Grasshopper")
+#' res1 <- rainbowPlot(hopperDF, seed = 12345, printout = FALSE, title = "Grasshopper")
 #' ## print just the stored estimates (the first two elements of the list)
 #' print(res1[1:2])
 #' ## Inspect the residuals of the lmer model
@@ -77,7 +77,7 @@ rainbowPlot <- function(data,
                       title = "",
                       printout = TRUE
                       ){
-
+  requireNamespace()
   # force Position and Sample to become factors
   data$Position <- factor(data$Position)
   data$Sample <- factor(data$Sample)

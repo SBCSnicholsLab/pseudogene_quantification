@@ -33,8 +33,6 @@ Type 'q()' to quit R.
 > 
 > ### * </HEADER>
 > library('vagrantDNA')
-Loading required package: lme4
-Loading required package: Matrix
 > 
 > base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
 > base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
@@ -139,14 +137,7 @@ Loading required package: Matrix
 > ##
 > ## plot and printout (by default).
 > rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
-Intercept based on  200 SNP loci 
-Estimate:  0.000558 
-Confindence Interval:  0.000484 - 0.000644 
-Mapping depth estimate:  0.000769 
-Function call 
- rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")> ##
-> ## plot without printing the results and store results in res1.
-> res1 <- rainbowPlot(hopperDF, seed = 12345, printout = False, title = "Grasshopper")
-Error in rainbowPlot(hopperDF, seed = 12345, printout = False, title = "Grasshopper") : 
-  object 'False' not found
+Error in requireNamespace() : 
+  argument "package" is missing, with no default
+Calls: rainbowPlot -> requireNamespace
 Execution halted

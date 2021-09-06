@@ -18,9 +18,9 @@
 * checking serialization versions ... OK
 * checking whether package ‘vagrantDNA’ can be installed ... OK
 * checking installed package size ... NOTE
-  installed size is  7.2Mb
+  installed size is  6.8Mb
   sub-directories of 1Mb or more:
-    data   7.1Mb
+    data   6.7Mb
 * checking package directory ... OK
 * checking for future file timestamps ... OK
 * checking DESCRIPTION meta-information ... NOTE
@@ -39,9 +39,11 @@ Standardizable: FALSE
 * checking whether the package can be unloaded cleanly ... OK
 * checking whether the namespace can be loaded with stated dependencies ... OK
 * checking whether the namespace can be unloaded cleanly ... OK
-* checking dependencies in R code ... NOTE
-'library' or 'require' call to ‘lme4’ which was already attached by Depends.
-  Please remove these calls from your code.
+* checking dependencies in R code ... WARNING
+'library' or 'require' call not declared from: ‘lme4’
+'library' or 'require' call to ‘lme4’ in package code.
+  Please use :: or requireNamespace() instead.
+  See section 'Suggested packages' in the 'Writing R Extensions' manual.
 * checking S3 generic/method consistency ... OK
 * checking replacement functions ... OK
 * checking foreign function calls ... OK
@@ -123,22 +125,32 @@ The error most likely occurred in:
 > ##
 > ## plot and printout (by default).
 > rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
-Intercept based on  200 SNP loci 
-Estimate:  0.000558 
-Confindence Interval:  0.000484 - 0.000644 
-Mapping depth estimate:  0.000769 
-Function call 
- rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")> ##
-> ## plot without printing the results and store results in res1.
-> res1 <- rainbowPlot(hopperDF, seed = 12345, printout = False, title = "Grasshopper")
-Error in rainbowPlot(hopperDF, seed = 12345, printout = False, title = "Grasshopper") : 
-  object 'False' not found
+Error in requireNamespace() : 
+  argument "package" is missing, with no default
+Calls: rainbowPlot -> requireNamespace
 Execution halted
 * checking for unstated dependencies in ‘tests’ ... WARNING
 'library' or 'require' call not declared from: ‘checkmate’
-* checking tests ... OK
+* checking tests ... ERROR
   Running ‘testthat.R’
+Running the tests in ‘tests/testthat.R’ failed.
+Last 13 lines of output:
+  > library(testthat)
+  > library(vagrantDNA)
+  > 
+  > test_check("vagrantDNA")
+  ══ Failed tests ════════════════════════════════════════════════════════════════
+  ── Error (test_rainbowPlot.R:31:1): (code run outside of `test_that()`) ────────
+  Error: argument "package" is missing, with no default
+  Backtrace:
+      █
+   1. └─vagrantDNA::rainbowPlot(testDF, nloci = 4, minSamples = 6) test_rainbowPlot.R:31:0
+   2.   └─base::requireNamespace()
+  
+  [ FAIL 1 | WARN 0 | SKIP 0 | PASS 0 ]
+  Error: Test failures
+  Execution halted
 * checking for non-standard things in the check directory ... OK
 * checking for detritus in the temp directory ... OK
 * DONE
-Status: 1 ERROR, 3 WARNINGs, 4 NOTEs
+Status: 2 ERRORs, 4 WARNINGs, 3 NOTEs
