@@ -3,9 +3,6 @@
 #   population-level low-pass sequencing data                                  #
 ################################################################################
 
-library(lme4)
-
-
 
 
 #' Rainbow Plot.
@@ -15,6 +12,7 @@ library(lme4)
 #' intercept estimate, and mapping depth estimate described by
 #' Becher & Nichols (2021) citation.
 #'
+#' @importFrom lme4 lmer
 #' @param data A data.frame with at least the following columns.
 #' \describe{
 #'   \item{AltProp}{A numberic vector giving the proportion (of reads mapping to the exogenous genome) that carry the non-standard alleles thought to be in the vagrant copies}
@@ -170,7 +168,7 @@ rainbowPlot <- function(data,
   estIntSE <- SEs5[which(intercepts5 == max(intercepts5))][1] # S.E. in log space
 
   # Convert estimate and CI to real values
-  intercepts <- exp(c(estIntlog,
+  intercepts <- plogis(c(estIntlog,
                          estIntlog - (1.96 * estIntSE),
                          estIntlog + (1.96 * estIntSE))
   )
@@ -259,23 +257,4 @@ rainbowPlot <- function(data,
          )
 
 }
-
-
-
-
-# Alternatively, read in data from repo ####
-# setwd("~/git_repos/pseudogene_quantification/")
-# # human data set
-# humanDF <- read.table("data/human/transformedData.csv", stringsAsFactors = F)
-# # parrot data set
-# parrotDF <- read.table("data/parrot/transformedData.csv", stringsAsFactors = F)
-# # grasshopper data set
-# hopperDF <- read.table("data/grasshopper/transformedData.csv", stringsAsFactors = F)
-
-
-# rainbowPlot(humanDF, seed = 12345, title = "Human")
-
-# rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
-
-# rainbowPlot(parrotDF, seed = 12345, title = "Parrot")
 

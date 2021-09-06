@@ -3,9 +3,6 @@
 #   population-level low-pass sequencing data                                  #
 ################################################################################
 
-library(lme4)
-
-
 
 
 #' Rainbow Plot.
@@ -15,6 +12,7 @@ library(lme4)
 #' intercept estimate, and mapping depth estimate described by
 #' Becher & Nichols (2021) citation.
 #'
+#' @importFrom lme4 lmer
 #' @param data A data.frame with at least the following columns.
 #' \describe{
 #'   \item{AltProp}{A numberic vector giving the proportion (of reads mapping to the exogenous genome) that carry the non-standard alleles thought to be in the vagrant copies}

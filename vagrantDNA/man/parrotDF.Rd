@@ -1,9 +1,7 @@
 \name{parrotDF}
 \alias{parrotDF}
 \docType{data}
-\title{
-%%   ~~ data name/kind ... ~~
-}
+\title{The parrot SNP dataframe}
 \description{
 %%  ~~ A concise (1-5 lines) description of the dataset. ~~
 }

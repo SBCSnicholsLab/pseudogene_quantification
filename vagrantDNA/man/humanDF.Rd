@@ -1,9 +1,7 @@
 \name{humanDF}
 \alias{humanDF}
 \docType{data}
-\title{
-%%   ~~ data name/kind ... ~~
-}
+\title{The human SNP dataframe}
 \description{
 %%  ~~ A concise (1-5 lines) description of the dataset. ~~
 }

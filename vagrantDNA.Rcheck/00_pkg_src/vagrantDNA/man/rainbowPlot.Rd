@@ -19,13 +19,12 @@ rainbowPlot(
 \arguments{
 \item{data}{A data.frame with at least the following columns.
 \describe{
-  \item{AltProp}{A numberic vector giving the proportion of reads mapping to the exogenous genome}
+  \item{AltProp}{A numberic vector giving the proportion (of reads mapping to the exogenous genome) that carry the non-standard alleles thought to be in the vagrant copies}
   \item{Position}{A factor (or structure that can be coerced to a factor),
   giving a unique name for each SNP location.}
   \item{Sample}{A factor (or structure that can be coerced to a factor),
   giving a unique name for each sample.}
-  \item{ylog}{A numeric vector giving the log(p), where p is the relative frequency of the SNP allele(s) not found in
-  the exogenous genome.}
+  \item{ylog}{A numeric vector giving the log(AltProp)}
   \item{xnqlogis}{A numeric vector giving log(m/N);
   where m is the number of reads mapping to the exogenous genome and
   N is the remaining reads.}

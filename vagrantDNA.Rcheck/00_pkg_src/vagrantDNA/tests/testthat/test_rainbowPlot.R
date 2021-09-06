@@ -11,8 +11,13 @@ pV <- 0.0001 # proportion of each genome that is vagrant
 
 AltProp <- pN*pV*pA / (pN*pV + pE) # proportion of reads mapping to the extra-nuclear genome that have alternate allele
 rNE <- pN*(1-pV) / (pE + pN*pV)  # ratio of reads mapping to extranuclear genome (includes vagrants) / those that do not
-xnqlogis <- log(rNE)
-ylog <- log(AltProp)
+xnqlogis <- log(rNE)  # log and add error so regression has residual var
+
+isd <- 1e-03 # sd per individual
+rsd <- 1e-07 # residual sd
+# add this variation to log(AltProp)
+ylog <- log(AltProp) + rep(rnorm(6, sd = isd), each = 4) + rnorm(6*4, sd = rsd)
+
 
 testDF <- data.frame(
   Sample = Sample,
@@ -29,7 +34,7 @@ test_that("The function returns appropriate objects", {
 })
 
 test_that("The parameter estimates are correct for a perfect fit", {
-  expect_equal(as.numeric(testlist$intercepts), rep(9.0009e-05, 3))
+  expect_equal(as.numeric(testlist$intercepts), rep(9.00009e-05, 3), tolerance = 0.01)
   expect_equal(testlist$depth.est,1-plogis(max(testDF$xnqlogis)))
   expect_equal(testlist$num.loci, 4)
 })
