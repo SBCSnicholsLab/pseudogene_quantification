@@ -74,14 +74,25 @@ intercept estimate, and mapping depth estimate described by
 Becher & Nichols (2021) citation.
 }
 \examples{
-## Access one of the package's example data-sets (hopperDF, parrotDF or humanDF)
-data(hopperDF)
+## Access one of the package's example data-sets (parrotDF or humanDF)
+data(parrotDF)
 ##
-## plot and printout (by default).
-rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
+## n.b. hopperDF is too large to be included in the package's data
+## but can be accessed as follows
+ \dontrun{
+ download.file("t.ly/6hXO", destfile = "hopper.csv")
+ hopperDF <- read.table("hopper.csv")}
+
+## (the t.ly/ link is to the cvs file at
+## https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/
+## main/data/grasshopper/transformedData.csv)
+
+
+## plot and printout (by default) the ressults of running rainbowPlot on the parrot data.
+rainbowPlot(parrotDF, seed = 12345, title = "Parrot")
 ##
 ## plot without printing the results and store results in res1.
-res1 <- rainbowPlot(hopperDF, seed = 12345, printout = FALSE, title = "Grasshopper")
+res1 <- rainbowPlot(parrotDF, seed = 12345, printout = FALSE, title = "Grasshopper")
 ## print just the stored estimates (the first two elements of the list)
 print(res1[1:2])
 ## Inspect the residuals of the lmer model

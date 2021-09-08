@@ -60,14 +60,25 @@
 #' }
 #'
 #' @examples
-#' ## Access one of the package's example data-sets (hopperDF, parrotDF or humanDF)
-#' data(hopperDF)
+#' ## Access one of the package's example data-sets (parrotDF or humanDF)
+#' data(parrotDF)
 #' ##
-#' ## plot and printout (by default).
-#' rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
+#' ## n.b. hopperDF is too large to be included in the package's data
+#' ## but can be accessed as follows
+#'  \dontrun{
+#'  download.file("t.ly/6hXO", destfile = "hopper.csv")
+#'  hopperDF <- read.table("hopper.csv")}
+#'
+#' ## (the t.ly/ link is to the cvs file at
+#' ## https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/
+#' ## main/data/grasshopper/transformedData.csv)
+#'
+#'
+#' ## plot and printout (by default) the ressults of running rainbowPlot on the parrot data.
+#' rainbowPlot(parrotDF, seed = 12345, title = "Parrot")
 #' ##
 #' ## plot without printing the results and store results in res1.
-#' res1 <- rainbowPlot(hopperDF, seed = 12345, printout = FALSE, title = "Grasshopper")
+#' res1 <- rainbowPlot(parrotDF, seed = 12345, printout = FALSE, title = "Grasshopper")
 #' ## print just the stored estimates (the first two elements of the list)
 #' print(res1[1:2])
 #' ## Inspect the residuals of the lmer model
@@ -103,10 +114,11 @@ rainbowPlot <- function(data,
   funcCall <- sys.call()
 
   # Remove the rows of data with NAs
-  goodDat <- subset(data,complete.cases(data))
+  goodDat <- data[complete.cases(data),]
 
   # Remove abnormally high values
-  goodDat <- subset(goodDat, AltProp < maxFreq)
+  goodDat <- goodDat[goodDat$AltProp < maxFreq,]
+
 
   # Find how many individuals each SNP has been scored in
   tt <- table(goodDat$Position)
@@ -114,7 +126,7 @@ rainbowPlot <- function(data,
   goodNames <- names(tt)[tt>=minSamples]
 
   # Exclude loci found in too few samples
-  goodDat <- subset(goodDat, Position %in% goodNames)
+  goodDat <- goodDat[goodDat$Position %in% goodNames,]
 
   # set random number seed if requested (ie. if seed is specified in the function call)
   if(hasArg(seed)) set.seed(seed)
@@ -134,10 +146,11 @@ rainbowPlot <- function(data,
 
   # Calculate the raw slopes for each locus (to identify any outlying values)
   slopes <- rep(0, nloci)
-  for (i in 1:nloci) slopes[i] <- coef(lm(ylog ~ xnqlogis,
-                                        data = subset(goodDat, Position == loci[i])
-                                        )
-                                     )[2]
+  for (i in 1:nloci) {
+    df <- goodDat[goodDat$Position == loci[i],]
+    slopes[i] <- coef( lm(ylog ~ xnqlogis, data = df) )[2]
+    }
+
   # Round slopes to avoid problems with rounding errors
   slopes <- round(slopes, 5)
 
@@ -151,7 +164,7 @@ rainbowPlot <- function(data,
   goodLoci <- loci[!rogueSNPs]
 
   # remove the rogue loci from the data.frame
-  goodDat <- subset(goodDat, Position %in% goodLoci)
+  goodDat <- goodDat[goodDat$Position %in% goodLoci,]
 
 
 
@@ -189,18 +202,18 @@ rainbowPlot <- function(data,
   goodDat <- merge(goodDat, rankDF, by="Position")
 
   # Put the raw data points for selected SNPs onto the rainbow plot
-  with(goodDat,{
-    maxx <- max(c(10, xnqlogis))
-    miny <- min(c(-10, max(intercepts5)))
-    plot(ylog~xnqlogis, col = rainbow(max(rank)*1.4)[rank],
+
+    maxx <- max( c(10, goodDat$xnqlogis) )
+    miny <- min( c(-10, max(intercepts5)) )
+    plot(goodDat$ylog ~ goodDat$xnqlogis,
+         col = rainbow(max(goodDat$rank)*1.4)[goodDat$rank],
          pch=1, xlim=c(0,maxx), ylim=c(miny,0),
          xlab="(Un-mapped data / mapped)",
          ylab="Allele frequency",
          main=title,
          xaxt = 'n',
-         yaxt = 'n')
-    }
-  ) # with goodDat
+         yaxt = 'n'
+         )
 
 
   # add the axes

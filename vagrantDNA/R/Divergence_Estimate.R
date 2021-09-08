@@ -49,8 +49,9 @@ divEst <- function(dat){
   dat$bAlt <- rowSums(dat[,3:6] * !dat[,16:19])
 
   for (i in 1:nSites){# create matrices with counts for the A populations and B populations
-    gmatA <- as.matrix(subset(dat, pos==siteNames[i] & pop == 'A')[,3:6])
-    gmatB <- as.matrix(subset(dat, pos==siteNames[i] & pop == 'B')[,3:6])
+    gmatA <- as.matrix( dat[ (dat$pos==siteNames[i] & dat$pop == 'A')[,3:6], ] )
+
+    gmatB <- as.matrix( dat[ (dat$pos==siteNames[i] & dat$pop == 'B')[,3:6], ] )
 
     # create matrices identifying the non mito alleles in each population
     # and the mito allele in the opposite population (where it will be non-mito)
