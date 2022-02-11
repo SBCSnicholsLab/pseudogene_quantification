@@ -1,12 +1,13 @@
 # A function to generate the divergence estimate of vagrant DNA inserts.
 
-#' Title
+#' Estimate vagrant insert proportion from diverged population data
 #'
 #' @param dat A data.frame with the following eleven columns in this order.
 #' \describe{
-#'   \item{pos}{A numeric vector giving the position of the variant site.}
+#'   \item{pos}{A factor (or structure that can be coerced to a factor),
+#'   giving the site IDs}
 #'   \item{sample}{A factor (or structure that can be coerced to a factor),
-#'   giving a unique name for each individual genotyped.}
+#'   giving a unique name for each individual genotyped}
 #'   \item{g1}{A numeric vector giving the allel count of allele 1.}
 #'   \item{g2}{A numeric vector giving the allel count of allele 2.}
 #'   \item{g3}{A numeric vector giving the allel count of allele 3.}
@@ -25,11 +26,17 @@
 #'
 #' @return An (invisible) list of Ascores and Bscores corresponding to the
 #' estimates per locus using A or B as the focal population.
-#'
+#' @importFrom graphics plot
+#' @importFrom graphics abline
+#' @export
 #' @examples
 #' ## Download data from GitHub
+#' \dontrun{
 #'
+#'
+#' }
 divEst <- function(dat){
+
   siteNames <- unique(dat$pos)
   nSites <- length(siteNames)
   Ascores <- Bscores <- rep(0,nSites)
@@ -49,9 +56,8 @@ divEst <- function(dat){
   dat$bAlt <- rowSums(dat[,3:6] * !dat[,16:19])
 
   for (i in 1:nSites){# create matrices with counts for the A populations and B populations
-    gmatA <- as.matrix( dat[ (dat$pos==siteNames[i] & dat$pop == 'A')[,3:6], ] )
-
-    gmatB <- as.matrix( dat[ (dat$pos==siteNames[i] & dat$pop == 'B')[,3:6], ] )
+    gmatA <- as.matrix(subset(dat, pos==siteNames[i] & pop == 'A')[,3:6])
+    gmatB <- as.matrix(subset(dat, pos==siteNames[i] & pop == 'B')[,3:6])
 
     # create matrices identifying the non mito alleles in each population
     # and the mito allele in the opposite population (where it will be non-mito)
@@ -80,17 +86,17 @@ divEst <- function(dat){
   abline(h = mean(Bscores), col='Orange')
 
   print(noquote(paste("Mean of A Scores: ",
-                signif(mean(Ascores), 3),
-                " (SE ",
-                signif(sqrt(var(Ascores)/nSites),2),
-                ")"
+                      signif(mean(Ascores), 3),
+                      " (SE ",
+                      signif(sqrt(var(Ascores)/nSites),2),
+                      ")"
   )))
 
   print(noquote(paste("Mean of B Scores: ",
-                signif(mean(Bscores), 3),
-                " (SE ",
-                signif(sqrt(var(Bscores)/nSites),2),
-                ")"
+                      signif(mean(Bscores), 3),
+                      " (SE ",
+                      signif(sqrt(var(Bscores)/nSites),2),
+                      ")"
   )))
   invisible(list(
     Ascores=Ascores,

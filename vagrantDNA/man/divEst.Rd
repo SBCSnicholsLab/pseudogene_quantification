@@ -2,16 +2,17 @@
 % Please edit documentation in R/Divergence_Estimate.R
 \name{divEst}
 \alias{divEst}
-\title{Title}
+\title{Estimate vagrant insert proportion from diverged population data}
 \usage{
 divEst(dat)
 }
 \arguments{
 \item{dat}{A data.frame with the following eleven columns in this order.
 \describe{
-  \item{pos}{A numeric vector giving the position of the variant site.}
+  \item{pos}{A factor (or structure that can be coerced to a factor),
+  giving the site IDs}
   \item{sample}{A factor (or structure that can be coerced to a factor),
-  giving a unique name for each individual genotyped.}
+  giving a unique name for each individual genotyped}
   \item{g1}{A numeric vector giving the allel count of allele 1.}
   \item{g2}{A numeric vector giving the allel count of allele 2.}
   \item{g3}{A numeric vector giving the allel count of allele 3.}
@@ -33,9 +34,12 @@ An (invisible) list of Ascores and Bscores corresponding to the
 estimates per locus using A or B as the focal population.
 }
 \description{
-Title
+Estimate vagrant insert proportion from diverged population data
 }
 \examples{
 ## Download data from GitHub
+\dontrun{
 
+
+}
 }
