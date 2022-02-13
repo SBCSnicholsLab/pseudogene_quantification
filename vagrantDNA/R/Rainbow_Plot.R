@@ -233,7 +233,7 @@ rainbowPlot <- function(data,
 
     # Add annotation to the plot
     estDep <- plogis(-max(goodDat$xnqlogis))
-    text(c(2, 7), c(0,0), c(
+    text(c(2, 2), c(0,-1), c(
       paste0("Intercept est: ", signif(intercepts[1]*100, 2), "%\n",
              "(", signif(intercepts[2]*100, 2), "%-",
              signif(intercepts[3]*100, 2), "%)"),
