@@ -2,12 +2,12 @@
 \alias{humanDF}
 \docType{data}
 \title{The human SNP dataframe}
-\description{A dataset required designed for the function rainbowPlot.
+\description{A dataset designed for the function rainbowPlot.
 Each row refers to a particular SNP locus and a particular sample.
 The column Sample gives a unique identifier for each sample, and Position for each SNP locus.
 For the reads that map to the extranuclear genome in question (mitochondria in this case),
 each row gives the proportion of reads at that SNP which carry the alleles thought to be in the vagrant sequences,
-i.e. the alleles which are not found in that sample's cytoplasmic mitochondria.  The raw frequency of the putative vagrant alleles is AltProp, and its log is ylog. Note some the vagrant sequences,
+i.e. the alleles which are not found in that sample's cytoplasmic mitochondria.  The raw frequency of the putative vagrant alleles is AltProp, and its log is ylog. Note some of the vagrant sequences
 inserted into the human genome may carry the extranuclear allele: that is what makes estimating the frequency of vagrant
 sequences problematic. Each row also gives the log(N/m) where m is count of reads that map to the mitochondrion, and N is the count of those that do not.  The latter will usually be from the nuclear genome, but could include contamination.
 }
@@ -25,12 +25,13 @@ sequences problematic. Each row also gives the log(N/m) where m is count of read
   }
 }
 \details{details of the pipeline to produce this dataframe can be found at https://github.com/SBCSnicholsLab/pseudogene_quantification/tree/main/data/human}
-\source{
-from Becher and Nichols 2022
+\source{https://github.com/SBCSnicholsLab/pseudogene_quantification/blob/main/data/human/genotypes.csv
+
 }
-\references{background information in }
+\references{from Becher H and Nichols RA (2022). Assembly-free quantification of vagrant DNA inserts}
 
 \examples{
-data(humanDF) ; str(humanDF) ; plot(humanDF)
+data(humanDF) ; str(humanDF)
+rainbowPlot(humanDF)
 }
 \keyword{datasets}

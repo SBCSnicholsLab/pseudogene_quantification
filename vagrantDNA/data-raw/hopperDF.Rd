@@ -25,12 +25,14 @@ sequences problematic. Each row also gives the log(N/m) where m is count of read
   }
 }
 \details{details of the pipeline to produce this dataframe can be found at https://github.com/SBCSnicholsLab/pseudogene_quantification/tree/main/data/grasshopper}
-\source{
-from Becher and Nichols 2022
+
+\source{https://github.com/SBCSnicholsLab/pseudogene_quantification/blob/main/data/grasshopper/genotypes.csv
 }
-\references{background information in Becher and Nichols 2019 https://www.biorxiv.org/content/10.1101/739805v1.abstract}
+
+\references{from Becher H and Nichols RA (2022). Assembly-free quantification of vagrant DNA inserts}
 
 \examples{
-data(hopperDF) ; str(hopperDF) ; plot(hopperDF)
+data(hopperDF) ; str(hopperDF) ; rainbowPlot(hopperDF)
 }
+
 \keyword{datasets}

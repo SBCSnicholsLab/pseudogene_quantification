@@ -24,12 +24,12 @@ sequences problematic. Each row also gives the log(N/m) where m is count of read
   }
 }
 \details{details of the pipeline to produce this dataframe can be found at https://github.com/SBCSnicholsLab/pseudogene_quantification/tree/main/data/parrot}
-\source{
-from Becher and Nichols 2022
+\source{https://github.com/SBCSnicholsLab/pseudogene_quantification/blob/main/data/parrot/genotypes.csv
+
 }
-\references{background information in }
+\references{from Becher H and Nichols RA (2022). Assembly-free quantification of vagrant DNA inserts}
 
 \examples{
-data(parrotDF); str(parrotDF); plot(parrotDF)
+data(parrotDF); str(parrotDF); rainbowPlot(parrotDF)
 }
 \keyword{datasets}
