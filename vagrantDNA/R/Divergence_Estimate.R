@@ -8,10 +8,10 @@
 #'   giving the site IDs}
 #'   \item{sample}{A factor (or structure that can be coerced to a factor),
 #'   giving a unique name for each individual genotyped}
-#'   \item{g1}{A numeric vector giving the allel count of allele 1.}
-#'   \item{g2}{A numeric vector giving the allel count of allele 2.}
-#'   \item{g3}{A numeric vector giving the allel count of allele 3.}
-#'   \item{g4}{A numeric vector giving the allel count of allele 4.}
+#'   \item{g1}{A numeric vector giving the allele count of allele 1.}
+#'   \item{g2}{A numeric vector giving the allele count of allele 2.}
+#'   \item{g3}{A numeric vector giving the allele count of allele 3.}
+#'   \item{g4}{A numeric vector giving the allele count of allele 4.}
 #'   \item{N}{A numeric vector giving the number of bp in the read data that did not map
 #'    to the vargrant DNA reference in this individual.}
 #'   \item{M}{A numeric vector giving the number of bp in the read data that did map
