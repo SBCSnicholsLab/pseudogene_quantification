@@ -1,21 +1,5 @@
 {
     "debugBreakpointsState": {
-        "breakpoints": [
-            {
-                "id": 0,
-                "path": "~/Documents/GitHub/pseudogene_quantification/vagrantDNA/R/Divergence_Estimate.R",
-                "line_number": 38,
-                "function_steps": "",
-                "function_name": "divEst",
-                "state": 2,
-                "editor_state": 2,
-                "editor_line_number": 38,
-                "is_pending_debug_completion": false,
-                "needs_updated_steps": false,
-                "type": 0,
-                "is_package_breakpoint": true,
-                "package_name": "vagrantDNA"
-            }
-        ]
+        "breakpoints": []
     }
 }

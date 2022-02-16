@@ -74,11 +74,11 @@
 #' ## main/data/grasshopper/transformedData.csv)
 #'
 #'
-#' ## plot and printout (by default) the ressults of running rainbowPlot on the parrot data.
+#' ## plot and printout (by default) the results of running rainbowPlot on the parrot data.
 #' rainbowPlot(parrotDF, seed = 12345, title = "Parrot")
 #' ##
 #' ## plot without printing the results and store results in res1.
-#' res1 <- rainbowPlot(parrotDF, seed = 12345, printout = FALSE, title = "Grasshopper")
+#' res1 <- rainbowPlot(parrotDF, seed = 12345, printout = FALSE, title = "Parrot")
 #' ## print just the stored estimates (the first two elements of the list)
 #' print(res1[1:2])
 #' ## Inspect the residuals of the lmer model

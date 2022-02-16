@@ -30,7 +30,17 @@
 #' @importFrom graphics abline
 #' @export
 #' @examples
-#' ## Download data from GitHub
+#' ## Access one of the package's example data-sets (parrotFX or hopperFX)
+#' data(hopperFX)
+
+#'
+#' ## plot and printout (by default) the results of running divEst on the grasshopper
+#' divEst(hopperFX)
+#' ##
+#' ## save the estimates from each locus and population and locus
+#' res1 <- divEst(hopperFX)
+#' ## Inspect the individual scores
+#' str(res1)
 #' \dontrun{
 #'
 #'

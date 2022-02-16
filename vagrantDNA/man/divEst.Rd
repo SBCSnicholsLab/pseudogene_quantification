@@ -37,9 +37,15 @@ estimates per locus using A or B as the focal population.
 Estimate vagrant insert proportion from diverged population data
 }
 \examples{
-## Download data from GitHub
-\dontrun{
+## Access one of the package's example data-sets (parrotFX or hopperFX)
+data(hopperFX)
 
+## plot and printout (by default) the results of running divEst on the grasshopper
+divEst(hopperFX)
+##
+## save the estimates from each locus and population and locus
+res1 <- divEst(hopperFX)
+## Inspect the individual scores
+str(res1)
 
-}
 }
