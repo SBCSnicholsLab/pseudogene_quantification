@@ -1,7 +1,7 @@
 Package: vagrantDNA
 Type: Package
 Title: Estimating the proportion of vagrant DNA in a genome
-Version: 0.1.0
+Version: 1.0.0
 Author: Richard Nichols and Hannes Becher
 Maintainer: The package maintainer <r.a.nichols@qmul.ac.uk>
 Description: The package two functions rainbowPlot and divEst. They produce two different estimates of the proportion of DNA from a particular vagrant genome. They exploit low coverge data from multiple individuals in which the vagrant DNA has taken residence (see Becher and Nichols 2022).
