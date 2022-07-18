@@ -178,9 +178,16 @@ rainbowPlot <- function(data,
 
   SEs5 <- summary(lmod5)$coefficients[,2]
 
+  # distances between intercepts
+  intDiffs <- diff(sort(intercepts5, decreasing = T))
+  thresh <- median(intDiffs) * 5
+  lastAccepted <- min(which(intDiffs > thresh))
+
+
   # Get intercepts and standard errors
-  estIntlog <- max(intercepts5)
-  estIntSE <- SEs5[which(intercepts5 == max(intercepts5))][1] # S.E. in log space
+  #estIntlog <- max(intercepts5)
+  estIntlog <- sort(intercepts5, decreasing = T)[lastAccepted]
+  estIntSE <- SEs5[which(intercepts5 == sort(intercepts5, decreasing = T)[lastAccepted])][1] # S.E. in log space
 
   # Convert estimate and CI to real values
   intercepts <- plogis(c(estIntlog,
@@ -225,9 +232,11 @@ rainbowPlot <- function(data,
     abline(h = log(10^(0:-6)), col = "grey", lty=3)
 
     # Add key lines
-    abline(h=max(intercepts5))
+    #abline(h=max(intercepts5))
+    abline(h=sort(intercepts5, decreasing = T)[lastAccepted])
     abline(v=max(goodDat$xnqlogis))
-    abline(max(intercepts5), 1,  lty=2)
+    #abline(max(intercepts5), 1,  lty=2)
+    abline(sort(intercepts5, decreasing = T)[lastAccepted], 1,  lty=2)
 
 
 
