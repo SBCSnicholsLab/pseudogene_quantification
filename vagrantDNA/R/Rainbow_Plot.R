@@ -27,7 +27,7 @@
 #'   \item{Sample}{A factor (or structure that can be coerced to a factor),
 #'   giving a unique name for each sample.}
 #'   \item{ylog}{A numeric vector giving the log(AltProp)}
-#'   \item{xnqlogis}{A numeric vector giving log(m/N);
+#'   \item{xnqlogisBP}{A numeric vector giving log(m/N);
 #'   where m is the number of reads mapping to the exogenous genome and
 #'   N is the remaining reads.}
 #'   }
@@ -92,7 +92,9 @@ rainbowPlot <- function(data,
                       filterHard = TRUE,
                       seed,
                       title = "",
-                      printout = TRUE
+                      printout = TRUE,
+                      perBpDep=T,
+                      weigh=T
                       ){
   if (!requireNamespace("lme4", quietly = TRUE)) install.packages("lme4")
   # force Position and Sample to become factors
@@ -103,12 +105,13 @@ rainbowPlot <- function(data,
   if( any( c( !is.vector(data$AltProp),
               !is.factor(data$Position),
               !is.vector(data$xnqlogis),
+              #!is.vector(data$xnqlogisBP),
               !is.vector(data$ylog),
               !is.factor(data$Sample)
               )
            )
       ) stop("Supply a dataframe containing a factors Position & Sample (or vectors which can be coerced to a factor), \n
-              \t plus vectors AltProp, ylog & xnqlogis")
+              \t plus vectors AltProp, ylog & xnqlogisBP")
 
   # Save the function call
   funcCall <- sys.call()
@@ -141,14 +144,22 @@ rainbowPlot <- function(data,
                                     \t or perhaps decreasing maxFreq or minWt")
 
   # sample a set of high frequency loci (sampling proportional to the freq)
-  loci <- sample(names(wweights), nloci, prob = wweights)
+  if(weigh){
+    loci <- sample(names(wweights), nloci, prob = wweights)
+  } else {
+    loci <- sample(names(wweights), nloci)
+  }
 
 
   # Calculate the raw slopes for each locus (to identify any outlying values)
   slopes <- rep(0, nloci)
   for (i in 1:nloci) {
     df <- goodDat[goodDat$Position == loci[i],]
-    slopes[i] <- coef( lm(ylog ~ xnqlogis, data = df) )[2]
+    if(perBpDep) {
+    slopes[i] <- coef( lm(ylog ~ xnqlogisBP, data = df) )[2]
+    } else {
+      slopes[i] <- coef( lm(ylog ~ xnqlogis, data = df) )[2]
+    }
     }
 
   # Round slopes to avoid problems with rounding errors
@@ -169,9 +180,15 @@ rainbowPlot <- function(data,
 
 
   # fit a 1:1 line plus intercept plus sample random effect
+  if(perBpDep) {
   lmod5 <- lmer(ylog ~ 0 + Position + (1 | Sample),
-                offset = xnqlogis,
+                offset = xnqlogisBP,
                 data = goodDat)
+  } else {
+    lmod5 <- lmer(ylog ~ 0 + Position + (1 | Sample),
+                  offset = xnqlogis,
+                  data = goodDat)
+  }
 
 
   intercepts5 <- summary(lmod5)$coefficients[,1]
@@ -179,16 +196,16 @@ rainbowPlot <- function(data,
   SEs5 <- summary(lmod5)$coefficients[,2]
 
   # distances between intercepts
-  intDiffs <- diff(sort(intercepts5, decreasing = T))
-  thresh <- median(intDiffs) * 5
-  lastAccepted <- min(which(intDiffs > thresh))
+  # intDiffs <- diff(sort(intercepts5, decreasing = T))
+  # thresh <- median(intDiffs) * 5
+  # lastAccepted <- min(which(intDiffs > thresh))
 
 
   # Get intercepts and standard errors
-  #estIntlog <- max(intercepts5)
-  estIntlog <- sort(intercepts5, decreasing = T)[lastAccepted]
-  estIntSE <- SEs5[which(intercepts5 == sort(intercepts5, decreasing = T)[lastAccepted])][1] # S.E. in log space
-
+  estIntlog <- max(intercepts5)
+  #estIntlog <- sort(intercepts5, decreasing = T)[lastAccepted]
+  #estIntSE <- SEs5[which(intercepts5 == sort(intercepts5, decreasing = T)[lastAccepted])][1] # S.E. in log space
+  estIntSE <- SEs5[which(intercepts5 == max(intercepts5))][1] # S.E. in log space
   # Convert estimate and CI to real values
   intercepts <- plogis(c(estIntlog,
                          estIntlog - (1.96 * estIntSE),
@@ -209,7 +226,19 @@ rainbowPlot <- function(data,
   goodDat <- merge(goodDat, rankDF, by="Position")
 
   # Put the raw data points for selected SNPs onto the rainbow plot
-
+  if(perBpDep){
+    maxx <- max( c(10, goodDat$xnqlogisBP) )
+    miny <- min( c(-10, max(intercepts5)) )
+    plot(goodDat$ylog ~ goodDat$xnqlogisBP,
+         col = rainbow(max(goodDat$rank)*1.4)[goodDat$rank],
+         pch=1, xlim=c(0,maxx), ylim=c(miny,0),
+         xlab="(Un-mapped data / mapped)",
+         ylab="Allele frequency",
+         main=title,
+         xaxt = 'n',
+         yaxt = 'n'
+         )
+  } else {
     maxx <- max( c(10, goodDat$xnqlogis) )
     miny <- min( c(-10, max(intercepts5)) )
     plot(goodDat$ylog ~ goodDat$xnqlogis,
@@ -220,8 +249,8 @@ rainbowPlot <- function(data,
          main=title,
          xaxt = 'n',
          yaxt = 'n'
-         )
-
+    )
+}
 
   # add the axes
 
@@ -232,16 +261,24 @@ rainbowPlot <- function(data,
     abline(h = log(10^(0:-6)), col = "grey", lty=3)
 
     # Add key lines
-    #abline(h=max(intercepts5))
-    abline(h=sort(intercepts5, decreasing = T)[lastAccepted])
-    abline(v=max(goodDat$xnqlogis))
-    #abline(max(intercepts5), 1,  lty=2)
-    abline(sort(intercepts5, decreasing = T)[lastAccepted], 1,  lty=2)
+    abline(h=max(intercepts5))
+    #abline(h=sort(intercepts5, decreasing = T)[lastAccepted])
+    if(perBpDep){
+    abline(v=max(goodDat$xnqlogisBP))
+    } else {
+      abline(v=max(goodDat$xnqlogis))
+    }
+    abline(max(intercepts5), 1,  lty=2)
+    #abline(sort(intercepts5, decreasing = T)[lastAccepted], 1,  lty=2)
 
 
 
     # Add annotation to the plot
-    estDep <- plogis(-max(goodDat$xnqlogis))
+    if(perBpDep){
+    estDep <- plogis(-max(goodDat$xnqlogisBP))
+    } else {
+      estDep <- plogis(-max(goodDat$xnqlogis))
+    }
     text(c(2, 2), c(0,-1), c(
       paste0("Intercept est: ", signif(intercepts[1]*100, 2), "%\n",
              "(", signif(intercepts[2]*100, 2), "%-",

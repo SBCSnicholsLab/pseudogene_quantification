@@ -13,7 +13,8 @@ rainbowPlot(
   filterHard = TRUE,
   seed,
   title = "",
-  printout = TRUE
+  printout = TRUE,
+  perBpDep = T
 )
 }
 \arguments{
@@ -25,7 +26,7 @@ rainbowPlot(
   \item{Sample}{A factor (or structure that can be coerced to a factor),
   giving a unique name for each sample.}
   \item{ylog}{A numeric vector giving the log(AltProp)}
-  \item{xnqlogis}{A numeric vector giving log(m/N);
+  \item{xnqlogisBP}{A numeric vector giving log(m/N);
   where m is the number of reads mapping to the exogenous genome and
   N is the remaining reads.}
   }}
