@@ -24,3 +24,5 @@ wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR016/ERR016251/ERR016251_1.fastq.gz
 wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR018/ERR018469/ERR018469_1.fastq.gz
 wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR016/ERR016258/ERR016258_1.fastq.gz
 wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR016/ERR016269/ERR016269_1.fastq.gz
+# also download human mit ref from NCBI: NC_012920.1 Homo sapiens mitochondrion, complete genome
+# and save as humanMitoRef.fa

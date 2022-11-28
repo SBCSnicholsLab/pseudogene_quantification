@@ -4,3 +4,4 @@ vagrantDNA/.Rproj.user*/*
 *.Rproj.user*
 .Rproj.user
 vagrantDNA.Rcheck
+*zarr
