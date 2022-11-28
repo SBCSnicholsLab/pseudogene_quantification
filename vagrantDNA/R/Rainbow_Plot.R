@@ -27,9 +27,11 @@
 #'   \item{Sample}{A factor (or structure that can be coerced to a factor),
 #'   giving a unique name for each sample.}
 #'   \item{ylog}{A numeric vector giving the log(AltProp)}
-#'   \item{xnqlogisBP}{A numeric vector giving log(m/N);
-#'   where m is the number of reads mapping to the exogenous genome and
-#'   N is the remaining reads.}
+#'   \item{DP}{A numeric vector giving the mapping depth of at each sites}
+#'   \item{nMapped}{A numeric vector giving the mapping depth of at each sites}
+#'   \item{xnqlogis}{A numeric vector giving log(m/N);
+#'   where m is the number of nucleotides mapping to the exogenous genome and
+#'   N is the remaining nucleotides in the sequencing data.}
 #'   }
 #' @param nloci The number of loci to be selected for the analysis. Default, 400.
 #' @param minWt The minimum average allele frequency of SNPs to be included in the analysis.
@@ -89,30 +91,45 @@ rainbowPlot <- function(data,
                       minWt = 0.01,
                       maxFreq = 0.7,
                       minSamples = 10,
-                      filterHard = TRUE,
+                      #filterHard = TRUE,
                       seed,
                       title = "",
                       printout = TRUE,
-                      perBpDep=T,
-                      weigh=T
+                      #perBpDep=F,
+                      correctForDepth=F,
+                      weigh=T,
+                      extraNucLen=16000
                       ){
   if (!requireNamespace("lme4", quietly = TRUE)) install.packages("lme4")
   # force Position and Sample to become factors
-  data$Position <- factor(data$Position)
-  data$Sample <- factor(data$Sample)
+  data$Position <- as.factor(data$Position)
+  data$Sample <- as.factor(data$Sample)
+  if(correctForDepth){
+    p <- exp(data$ylog)
+    nma <- p * data$DP
+    ma <- (1-p) * data$DP
+    rd <- data$DP
+    ard <- data$nMapped/extraNucLen
+    data$ylog <- log(nma*ard/rd/((ard/rd)*nma+ma))
+  }
 
   # check the data.frame has appropriate columns
   if( any( c( !is.vector(data$AltProp),
               !is.factor(data$Position),
-              !is.vector(data$xnqlogis),
-              #!is.vector(data$xnqlogisBP),
               !is.vector(data$ylog),
-              !is.factor(data$Sample)
+              !is.factor(data$Sample),
+              !is.vector(data$nMapped),
+              !is.vector(data$nTot),
+              !is.vector(data$DP)
               )
            )
       ) stop("Supply a dataframe containing a factors Position & Sample (or vectors which can be coerced to a factor), \n
               \t plus vectors AltProp, ylog & xnqlogisBP")
 
+  # Greate required columns
+  data$mappingrate <- data$nMapped / data$nTot
+  data$xnqlogis <- -qlogis(data$mappingrate)
+  data <- data[!is.na(data$xnqlogis),]
   # Save the function call
   funcCall <- sys.call()
 
@@ -155,11 +172,11 @@ rainbowPlot <- function(data,
   slopes <- rep(0, nloci)
   for (i in 1:nloci) {
     df <- goodDat[goodDat$Position == loci[i],]
-    if(perBpDep) {
-    slopes[i] <- coef( lm(ylog ~ xnqlogisBP, data = df) )[2]
-    } else {
+    #if(perBpDep) {
+    #slopes[i] <- coef( lm(ylog ~ xnqlogisBP, data = df) )[2]
+    #} else {
       slopes[i] <- coef( lm(ylog ~ xnqlogis, data = df) )[2]
-    }
+    #}
     }
 
   # Round slopes to avoid problems with rounding errors
@@ -169,26 +186,30 @@ rainbowPlot <- function(data,
   # Hard filtering excludes upper and lower quartiles
   # otherwise the boxplot default criterion is used (familiar as the end of whiskers)
   bpsSlopes <- boxplot.stats(slopes)$stats
-  if (filterHard) {
-    rogueSNPs <- (slopes > bpsSlopes[4] | slopes < bpsSlopes[2])} else {
-    rogueSNPs <- (slopes > bpsSlopes[5] | slopes < bpsSlopes[1])}
+  #if (filterHard) {
+   # rogueSNPs <- (slopes > bpsSlopes[4] | slopes < bpsSlopes[2])}
+  #else {
+    rogueSNPs <- (slopes > bpsSlopes[5] | slopes < bpsSlopes[1])
+    #}
   goodLoci <- loci[!rogueSNPs]
 
   # remove the rogue loci from the data.frame
   goodDat <- goodDat[goodDat$Position %in% goodLoci,]
 
+  # get median from boxplot.stats (discards outliers)
+  goodDatMeds <- round(as.numeric(tapply(goodDat$DP * exp(goodDat$ylog), goodDat$Sample, function(x) boxplot.stats(x)$stats[3])))
 
-
+  if(sum(goodDatMeds < 2) > length(goodDatMeds)/2) warning("The majority of individuals have a median alternate allele depth of 1. This suggests that vagrant DNA proportion or the sequencing depth may be insufficient for an accurate estimate. Consider using more WGS data if possible.")
   # fit a 1:1 line plus intercept plus sample random effect
-  if(perBpDep) {
-  lmod5 <- lmer(ylog ~ 0 + Position + (1 | Sample),
-                offset = xnqlogisBP,
-                data = goodDat)
-  } else {
+  #if(perBpDep) {
+  #lmod5 <- lmer(ylog ~ 0 + Position + (1 | Sample),
+  #              offset = xnqlogisBP,
+  #              data = goodDat)
+  #} else {
     lmod5 <- lmer(ylog ~ 0 + Position + (1 | Sample),
                   offset = xnqlogis,
                   data = goodDat)
-  }
+  #}
 
 
   intercepts5 <- summary(lmod5)$coefficients[,1]
@@ -226,19 +247,19 @@ rainbowPlot <- function(data,
   goodDat <- merge(goodDat, rankDF, by="Position")
 
   # Put the raw data points for selected SNPs onto the rainbow plot
-  if(perBpDep){
-    maxx <- max( c(10, goodDat$xnqlogisBP) )
-    miny <- min( c(-10, max(intercepts5)) )
-    plot(goodDat$ylog ~ goodDat$xnqlogisBP,
-         col = rainbow(max(goodDat$rank)*1.4)[goodDat$rank],
-         pch=1, xlim=c(0,maxx), ylim=c(miny,0),
-         xlab="(Un-mapped data / mapped)",
-         ylab="Allele frequency",
-         main=title,
-         xaxt = 'n',
-         yaxt = 'n'
-         )
-  } else {
+  # if(perBpDep){
+  #   maxx <- max( c(10, goodDat$xnqlogisBP) )
+  #   miny <- min( c(-10, max(intercepts5)) )
+  #   plot(goodDat$ylog ~ goodDat$xnqlogisBP,
+  #        col = rainbow(max(goodDat$rank)*1.4)[goodDat$rank],
+  #        pch=1, xlim=c(0,maxx), ylim=c(miny,0),
+  #        xlab="(Un-mapped data / mapped)",
+  #        ylab="Allele frequency",
+  #        main=title,
+  #        xaxt = 'n',
+  #        yaxt = 'n'
+  #        )
+  # } else {
     maxx <- max( c(10, goodDat$xnqlogis) )
     miny <- min( c(-10, max(intercepts5)) )
     plot(goodDat$ylog ~ goodDat$xnqlogis,
@@ -250,7 +271,7 @@ rainbowPlot <- function(data,
          xaxt = 'n',
          yaxt = 'n'
     )
-}
+#}
 
   # add the axes
 
@@ -263,22 +284,22 @@ rainbowPlot <- function(data,
     # Add key lines
     abline(h=max(intercepts5))
     #abline(h=sort(intercepts5, decreasing = T)[lastAccepted])
-    if(perBpDep){
-    abline(v=max(goodDat$xnqlogisBP))
-    } else {
+    # if(perBpDep){
+    # abline(v=max(goodDat$xnqlogisBP))
+    # } else {
       abline(v=max(goodDat$xnqlogis))
-    }
+    #}
     abline(max(intercepts5), 1,  lty=2)
     #abline(sort(intercepts5, decreasing = T)[lastAccepted], 1,  lty=2)
 
 
 
     # Add annotation to the plot
-    if(perBpDep){
-    estDep <- plogis(-max(goodDat$xnqlogisBP))
-    } else {
+    #if(perBpDep){
+    #estDep <- plogis(-max(goodDat$xnqlogisBP))
+    #} else {
       estDep <- plogis(-max(goodDat$xnqlogis))
-    }
+    #}
     text(c(2, 2), c(0,-1), c(
       paste0("Intercept est: ", signif(intercepts[1]*100, 2), "%\n",
              "(", signif(intercepts[2]*100, 2), "%-",
@@ -306,15 +327,18 @@ rainbowPlot <- function(data,
                 '\n'
                 )
     cat('Mapping depth estimate: ',signif(estDep,3), '\n')
-    cat('Function call \n', deparse(funcCall))
+    cat('Function call \n', deparse(funcCall), '\n')
   }
+
+  if(estDep < intercepts[1]) warning("The intercept estimate is higher than the mapping-depth estimate. This fit is likely to be unreliable. Consider using more sequencing data per individual if possible.")
 
   # Return the estimated values as an (initially) invisible object for further use
   invisible(list(intercepts = intercepts,
               depth.est = estDep,
               num.loci = numgoodloci,
               lmer.model = lmod5,
-              func.params = funcCall)
+              func.params = funcCall
+              )
          )
 
 }
