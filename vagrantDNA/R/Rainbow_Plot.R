@@ -21,17 +21,20 @@
 #'
 #' @param data A data.frame with at least the following columns.
 #' \describe{
-#'   \item{AltProp}{A numberic vector giving the proportion (of reads mapping to the exogenous genome) that carry the non-standard alleles thought to be in the vagrant copies}
-#'   \item{Position}{A factor (or structure that can be coerced to a factor),
-#'   giving a unique name for each SNP location.}
 #'   \item{Sample}{A factor (or structure that can be coerced to a factor),
 #'   giving a unique name for each sample.}
+#'   \item{Position}{A factor (or structure that can be coerced to a factor),
+#'   giving a unique name for each SNP location.}
+#'   \item{AltProp}{A numeric vector giving the proportion (of reads mapping to
+#'   the exogenous genome) that carry the non-standard alleles (thought to be in
+#'   the vagrant copies)}
+#'   \item{DP}{A numeric vector giving the mapping depth at each site}
+#'   \item{nMapped}{A numeric vector giving the number of base pairs in this
+#'   sample's sequencing data that were successfully aligned to the extranuclear
+#'   reference}
+#'   \item{nTot}{A numeric vector giving the total number of base pairs of the sample's
+#'   mapping data (ideally after quality control, filtering, read trimming, ect.)}
 #'   \item{ylog}{A numeric vector giving the log(AltProp)}
-#'   \item{DP}{A numeric vector giving the mapping depth of at each sites}
-#'   \item{nMapped}{A numeric vector giving the mapping depth of at each sites}
-#'   \item{xnqlogis}{A numeric vector giving log(m/N);
-#'   where m is the number of nucleotides mapping to the exogenous genome and
-#'   N is the remaining nucleotides in the sequencing data.}
 #'   }
 #' @param nloci The number of loci to be selected for the analysis. Default, 400.
 #' @param minWt The minimum average allele frequency of SNPs to be included in the analysis.
@@ -40,12 +43,12 @@
 #' in the analysis. Default, 0.7.
 #' @param minSamples The minimum number of samples in which a SNP should be called in order to
 #' be included in the analysis.
-#' @param filterHard If filterHard is TRUE, the SNP loci with slopes in the outer quartiles are
-#' discarded. Otherwise the outliers identified by the default method of boxplot.stats function
-#' are discarded. Default, TRUE.
 #' @param seed Random number seed.
 #' @param title User-supplied title for the rainbow plot.
-#' @param printout If printout is TRUE, the function prints the estimates. Default, TRUE.
+#' @param printout If printout is TRUE, the function prints the estimates. Default, `TRUE`.
+#' @param correctForDepth Logical, whether of not to correct for uneven insertion rates along the extranuclear sequence. Not usually required. Default is `FALSE`.
+#' @param weigh Logical. Whether or not to select loci with high allele frequencies. Default is `TRUE`.
+#' @param extraNucLen Numeric. Length of the extranuclear genome reference. Only required when `correctForDepth` is set to `TRUE`. Default is 16000.
 #' @return An invisible list with the following elements.
 #' \describe{
 #'  \item{$intercepts}{A vector giving the intercept estimate,
@@ -68,7 +71,7 @@
 #' ## n.b. hopperDF is too large to be included in the package's data
 #' ## but can be accessed as follows
 #'  \dontrun{
-#'  download.file("t.ly/6hXO", destfile = "hopper.csv")
+#'  download.file("https://tinyurl.com/4mtrbkzc", destfile = "hopper.csv")
 #'  hopperDF <- read.table("hopper.csv")}
 #'
 #' ## (the t.ly/ link is to the cvs file at
@@ -91,11 +94,9 @@ rainbowPlot <- function(data,
                       minWt = 0.01,
                       maxFreq = 0.7,
                       minSamples = 10,
-                      #filterHard = TRUE,
                       seed,
                       title = "",
                       printout = TRUE,
-                      #perBpDep=F,
                       correctForDepth=F,
                       weigh=T,
                       extraNucLen=16000
@@ -105,6 +106,7 @@ rainbowPlot <- function(data,
   data$Position <- as.factor(data$Position)
   data$Sample <- as.factor(data$Sample)
   if(correctForDepth){
+    cat("Option correctForDepth is set to true. Make sure to specify the length or the extranulcear genome reference using the argument extraNucLen!\n")
     p <- exp(data$ylog)
     nma <- p * data$DP
     ma <- (1-p) * data$DP
