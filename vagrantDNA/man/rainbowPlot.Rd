@@ -10,10 +10,12 @@ rainbowPlot(
   minWt = 0.01,
   maxFreq = 0.7,
   minSamples = 10,
-  filterHard = TRUE,
   seed,
   title = "",
-  printout = TRUE
+  printout = TRUE,
+  correctForDepth = F,
+  weigh = T,
+  extraNucLen = 16000
 )
 }
 \arguments{
@@ -25,9 +27,11 @@ rainbowPlot(
   \item{Sample}{A factor (or structure that can be coerced to a factor),
   giving a unique name for each sample.}
   \item{ylog}{A numeric vector giving the log(AltProp)}
+  \item{DP}{A numeric vector giving the mapping depth of at each sites}
+  \item{nMapped}{A numeric vector giving the mapping depth of at each sites}
   \item{xnqlogis}{A numeric vector giving log(m/N);
-  where m is the number of reads mapping to the exogenous genome and
-  N is the remaining reads.}
+  where m is the number of nucleotides mapping to the exogenous genome and
+  N is the remaining nucleotides in the sequencing data.}
   }}
 
 \item{nloci}{The number of loci to be selected for the analysis. Default, 400.}
@@ -41,15 +45,15 @@ in the analysis. Default, 0.7.}
 \item{minSamples}{The minimum number of samples in which a SNP should be called in order to
 be included in the analysis.}
 
-\item{filterHard}{If filterHard is TRUE, the SNP loci with slopes in the outer quartiles are
-discarded. Otherwise the outliers identified by the default method of boxplot.stats function
-are discarded. Default, TRUE.}
-
 \item{seed}{Random number seed.}
 
 \item{title}{User-supplied title for the rainbow plot.}
 
 \item{printout}{If printout is TRUE, the function prints the estimates. Default, TRUE.}
+
+\item{filterHard}{If filterHard is TRUE, the SNP loci with slopes in the outer quartiles are
+discarded. Otherwise the outliers identified by the default method of boxplot.stats function
+are discarded. Default, TRUE.}
 }
 \value{
 An invisible list with the following elements.
