@@ -12,22 +12,16 @@ Instead the package vagrantDNA estimates the proportion of the nuclear genome is
 install.packages("devtools")
 
 # Install vagrantDNA from GitHub
-devtools::install_github("https://github.com/SBCSnicholsLab/pseudogene_quantification/",
-                         subdir = "vagrantDNA")
+devtools::install_url("https://github.com/SBCSnicholsLab/pseudogene_quantification/releases/download/v1.1.0/vagrantDNA_1.1.0.tar.gz")
 # Load package
 library(vagrantDNA)
 ```
 
 ### Generate a rainbowplot
 ```
-download.file("t.ly/6hXO", destfile = "hopper.csv")
-hopperDF <- read.table("~/hopper.csv")
-res1 <- rainbowPlot(parrotDF, seed = 12345, printout = FALSE, title = "Grasshopper")
-## print just the stored estimates (the first two elements of the list)
-print(res1[1:2])
-## Inspect the residuals of the lmer model
-plot(res1$lmer.model)
-
+download.file("https://tinyurl.com/4mtrbkzc", destfile = "hopper.csv")
+hopperDF <- read.table("hopper.csv")
+hopperFit <- rainbowPlot(hopperDF, seed = 12345, printout = FALSE, title = "Grasshopper")
 ```
 
 
