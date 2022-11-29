@@ -100,10 +100,11 @@ data(parrotDF)
 ## plot and printout (by default) the results of running rainbowPlot on the parrot data.
 rainbowPlot(parrotDF, seed = 12345, title = "Parrot")
 ##
-## plot without printing the results and store results in res1.
-res1 <- rainbowPlot(parrotDF, seed = 12345, printout = FALSE, title = "Parrot")
-## print just the stored estimates (the first two elements of the list)
-print(res1[1:2])
-## Inspect the residuals of the lmer model
-plot(res1$lmer.model)
+## plot without printing the results and store results in parrotFit
+parrotFit <- rainbowPlot(parrotDF, seed = 12345, printout = FALSE, title = "Parrot")
+## Inspect relationship between intercepts and SNP location
+interceptPositionPlot(parrotFit)
+## Inspect mapping depth of nuclear insert allele across samples
+selAllPlot(parrotDF, parrotFit)
+
 }

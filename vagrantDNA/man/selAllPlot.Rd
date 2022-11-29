@@ -4,7 +4,7 @@
 \alias{selAllPlot}
 \title{Boxplot of alternate (vagrant) allele counts per sample}
 \usage{
-selAllPlot(dd, ff, ylim = c(0, 10), ...)
+selAllPlot(dd, ff, ylim = c(0, 10), ylab = "Allele count", ...)
 }
 \arguments{
 \item{dd}{A dataframe, such as used to run `rainbowPlot()`}
