@@ -2,23 +2,37 @@
 % Please edit documentation in R/interceptPositionPlot.R
 \name{interceptPositionPlot}
 \alias{interceptPositionPlot}
-\title{Intercept-position-plot for loci seect by rainbowPlot()}
+\title{Intercept-position-plot for loci selected by \code{rainbowPlot()}}
 \usage{
-interceptPositionPlot(ff, main = "Intercept-position-plot", ...)
+interceptPositionPlot(
+  ff,
+  highlightOutliers = F,
+  main = "Intercept-position-plot",
+  ...
+)
 }
 \arguments{
-\item{ff}{A `rainbowPlot()` fit.}
+\item{ff}{A \code{rainbowPlot()} fit.}
+
+\item{highlightOutliers}{Logical. Whether or not to highlight sites with
+outlier intercepts according to \code{boxplot.stats}. Default \code{F}}
 
 \item{main}{Plot caption, default is "Intercept-position-plot"}
 
-\item{...}{Arguments to be passed to `plot()`}
+\item{...}{Arguments to be passed to \code{plot()}}
+}
+\value{
+Returns invisibly a vector of positions where the intercept estimate
+were outliers according to \code{boxplot.stats}
 }
 \description{
-Intercept-position-plot for loci seect by rainbowPlot()
+Intercept-position-plot for loci selected by \code{rainbowPlot()}
 }
 \examples{
  \dontrun{
- humanFit <- rainbowPlot(humanDF)
- interceptPositionPlot(humanFit)
+ rPar <- rainbowPlot(parrotDF)
+ toRemove <- interceptPositionPlot(rPar, highlightOutliers=T)
+ parrotDF2 <- parrotDF[!parrotDF$Position \%in\% toRemove,]
+ rainbowPlot(parrotDF2)
  }
 }

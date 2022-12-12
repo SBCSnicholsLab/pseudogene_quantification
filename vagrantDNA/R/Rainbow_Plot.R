@@ -74,7 +74,7 @@
 #'  download.file("https://tinyurl.com/4mtrbkzc", destfile = "hopper.csv")
 #'  hopperDF <- read.table("hopper.csv")}
 #'
-#' ## (the t.ly/ link is to the cvs file at
+#' ## (the t.ly/ link is to the CSV file at
 #' ## https://raw.githubusercontent.com/SBCSnicholsLab/pseudogene_quantification/
 #' ## main/data/grasshopper/transformedData.csv)
 #'

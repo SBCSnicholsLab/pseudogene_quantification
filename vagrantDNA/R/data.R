@@ -4,7 +4,7 @@
 #' sequencing data mapped against mitochondrial genome references.
 #'
 #' @format Each is a data.frame.
-#' [species]DF just contain variant calling data.
+#' \strong{\code{[species]DF}} just contain variant calling data.
 #' The columns are:
 #' \describe{
 #'   \item{Sample}{A character vector giving a unique name for each sample}
@@ -15,7 +15,7 @@
 #'   \item{nTot}{A numeric vector giving the total number of base pairs of the sample's mapping data (ideally after quality control, filtering, read trimming, ect.)}
 #'   \item{ylog}{A numeric vector giving the log of `AltProp`}
 #' }
-#' [species]FX were generated from species with diverged populations. These
+#' \strong{\code{[species]FX}} were generated from species with diverged populations. These
 #' contain information on sites with fixed differences. The columns are:
 #' \describe{
 #'   \item{pos}{A vector giving the site IDs}
@@ -32,6 +32,29 @@
 #'   }
 #'
 #' @examples
+#' # Generate the estimates reported in the paper
+#' \dontrun{
+#' ## Parrot
+#' rPar <- rainbowPlot(parrotDF, seed=12345)
+#' # remove multiple outliers
+#' toRemove <- interceptPositionPlot(rPar, highlightOutliers=T)
+#' parrotDF2 <- parrotDF[!parrotDF$Position %in% toRemove,]
+#' rainbowPlot(parrotDF2, seed=12345, title = "Parrot")
+#'
+#' ## Human
+#' rHum <- rainbowPlot(humanDF, seed=12345)
+#' # automatic outlier detection would remove SNPs that look OK
+#' interceptPositionPlot(rHum, highlightOutliers = T)
+#' # select single outlier "by hand"
+#' which.max(coef(summary(rHum$lmer.model))[,1])
+#' humanDF2 <- humanDF[humanDF$Position != 310,] # by hand, better
+#' rainbowPlot(humanDF2, seed=12345, title = "Human")
+#'
+#' ## Grasshopper
+#' download.file("https://tinyurl.com/4mtrbkzc", destfile = "hopper.csv")
+#' hopperDF <- read.table("hopper.csv")
+#' rainbowPlot(hopperDF, seed = 12345, title = "Grasshopper")
+#' }
 #' humanDF
 #' parrotDF
 #' hopperFX
