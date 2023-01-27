@@ -12,7 +12,7 @@ Instead the package vagrantDNA estimates the proportion of the nuclear genome is
 install.packages("devtools")
 
 # Install vagrantDNA from GitHub
-devtools::install_url("https://github.com/SBCSnicholsLab/pseudogene_quantification/releases/download/v1.1.0/vagrantDNA_1.1.0.tar.gz")
+devtools::install_url("https://github.com/SBCSnicholsLab/pseudogene_quantification/releases/download/v1.2.0/vagrantDNA_1.2.0.tar.gz")
 # Load package
 library(vagrantDNA)
 ```
