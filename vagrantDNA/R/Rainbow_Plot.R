@@ -10,7 +10,7 @@
 #' Generate a plot to estimate the proportion of the nuclear genome
 #' made up of a particular vagrant sequence. The function produces the plots
 #' intercept estimate, and mapping depth estimate described by
-#' Becher & Nichols (2021) citation.
+#' Becher & Nichols (2023) Molecular Ecology Resources.
 #'
 #' @importFrom lme4 lmer
 #' @importFrom grDevices boxplot.stats rainbow
