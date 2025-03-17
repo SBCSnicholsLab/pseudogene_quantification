@@ -90,6 +90,8 @@
 #' selAllPlot(parrotDF, parrotFit)
 #'
 #' @export
+#' @importFrom stats loess qlogis
+#' @importFrom graphics boxplot lines
 rainbowPlot <- function(data,
                       nloci = 400,
                       minWt = 0.01,

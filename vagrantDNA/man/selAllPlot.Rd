@@ -11,13 +11,17 @@ selAllPlot(dd, ff, ylim = c(0, 10), ylab = "Allele count", ...)
 
 \item{ff}{(optional) a `rainbowPlot()` fit}
 
+\item{ylim}{y-axis limits, a vector of two numerics}
+
+\item{ylab}{a y-axis label, character}
+
 \item{...}{Arguments passed to `boxplot()`}
 }
 \description{
 Boxplot of alternate (vagrant) allele counts per sample
 }
 \examples{
-#'  \dontrun{
+ \dontrun{
  humanFit <- rainbowPlot(humanDF)
  selAllPlot(humanDF) # overall alt allele counts
  selAllPlot(humanDF, humanFit) # alt allele count at loci selected for fit

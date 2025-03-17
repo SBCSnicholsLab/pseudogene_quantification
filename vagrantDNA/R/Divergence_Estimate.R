@@ -66,21 +66,21 @@ divEst <- function(dat){
   dat$bAlt <- rowSums(dat[,3:6] * !dat[,16:19])
 
   for (i in 1:nSites){# create matrices with counts for the A populations and B populations
-    gmatA <- as.matrix(subset(dat, pos==siteNames[i] & pop == 'A')[,3:6])
-    gmatB <- as.matrix(subset(dat, pos==siteNames[i] & pop == 'B')[,3:6])
+    gmatA <- as.matrix(dat[dat$pos==siteNames[i] & dat$pop == 'A',3:6])
+    gmatB <- as.matrix(dat[dat$pos==siteNames[i] & dat$pop == 'B',3:6])
 
     # create matrices identifying the non mito alleles in each population
     # and the mito allele in the opposite population (where it will be non-mito)
     # For the A population:
-    notMitoAlleleA <- !as.matrix(subset(dat, pos==siteNames[i] & pop == 'A')[,12:15])
-    AmitoAlleleInB <-  as.matrix(subset(dat, pos==siteNames[i] & pop == 'B')[,12:15])
+    notMitoAlleleA <- !as.matrix(dat[dat$pos==siteNames[i] & dat$pop == 'A',12:15])
+    AmitoAlleleInB <-  as.matrix(dat[dat$pos==siteNames[i] & dat$pop == 'B',12:15])
     # For the B populations
-    notMitoAlleleB <- !as.matrix(subset(dat, pos==siteNames[i] & pop == 'B')[,16:19])
-    BmitoAlleleInA <-  as.matrix(subset(dat, pos==siteNames[i] & pop == 'A')[,16:19])
-    mA <- subset(dat, pos==siteNames[i] & pop == 'A')$M
-    mB <- subset(dat, pos==siteNames[i] & pop == 'B')$M
-    nA <- subset(dat, pos==siteNames[i] & pop == 'A')$N
-    nB <- subset(dat, pos==siteNames[i] & pop == 'B')$N
+    notMitoAlleleB <- !as.matrix(dat[dat$pos==siteNames[i] & dat$pop == 'B',16:19])
+    BmitoAlleleInA <-  as.matrix(dat[dat$pos==siteNames[i] & dat$pop == 'A',16:19])
+    mA <- dat[dat$pos==siteNames[i] & dat$pop == 'A',]$M
+    mB <- dat[dat$pos==siteNames[i] & dat$pop == 'B',]$M
+    nA <- dat[dat$pos==siteNames[i] & dat$pop == 'A',]$N
+    nB <- dat[dat$pos==siteNames[i] & dat$pop == 'B',]$N
 
     Ascores[i] <- sum(rowSums(gmatA * notMitoAlleleA) / rowSums(gmatA) * mA) / sum(nA) +
       sum(rowSums(gmatB * AmitoAlleleInB) / rowSums(gmatB) * mB) / sum(nB)

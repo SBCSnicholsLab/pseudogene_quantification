@@ -6,12 +6,14 @@
 #'
 #' @param dd A dataframe, such as used to run `rainbowPlot()`
 #' @param ff (optional) a `rainbowPlot()` fit
+#' @param ylim y-axis limits, a vector of two numerics
+#' @param ylab a y-axis label, character
 #' @param ... Arguments passed to `boxplot()`
 #'
 #' @export
 #'
 #' @examples
-#' #'  \dontrun{
+#'  \dontrun{
 #'  humanFit <- rainbowPlot(humanDF)
 #'  selAllPlot(humanDF) # overall alt allele counts
 #'  selAllPlot(humanDF, humanFit) # alt allele count at loci selected for fit
